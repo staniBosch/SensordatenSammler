@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Sensordaten-Sammler</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="accelerometer_title_text">Accelerometer</string>
+    <string name="battery_title_text">Batterie</string>
+    <string name="gps_title_text">GPS</string>
+    <string name="wifi_title_text">WiFi</string>
+    <string name="light_title_text">Licht</string>
+    <string name="bluetooth_title_text">Bluetooth</string>
+    <string name="gyro_title_text">Gyroskop</string>
+    <string name="magnetometer_title_text">Magnetometer</string>
+    <string name="compass_title_text">Kompass</string>
+    <string name="sensor_list_title">Liste aller Sensoren</string>
+    <string name="start_listening_btn">Sensordaten abhören</string>
+    <string name="stop_listening_btn">Abhören der Sensordaten stoppen</string>
+    <string name="x_valAcc">x:  %1$f m/s²</string>
+    <string name="y_valAcc">y:  %1$f m/s²</string>
+    <string name="z_valAcc">z:  %1$f m/s²</string>
+    <string name="x_valGyro">x:  %1$f rad/s</string>
+    <string name="y_valGyro">y:  %1$f rad/s</string>
+    <string name="z_valGyro">z:  %1$f rad/s</string>
+</resources>

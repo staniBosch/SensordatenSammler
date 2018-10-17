@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/xValueGyro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20sp"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/yValueGyro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/xValueGyro"
+        android:padding="20sp"
+        android:textSize="30sp" />
+
+
+    <TextView
+        android:id="@+id/zValueGyro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/yValueGyro"
+        android:padding="20sp"
+        android:textSize="30sp" />
+
+    <Button
+        android:id="@+id/bStartStopGyro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/zValueGyro"
+        android:drawableLeft="@drawable/ic_play_arrow"
+        android:text="@string/start_listening_btn"
+        android:textSize="20sp" />
+</RelativeLayout>
