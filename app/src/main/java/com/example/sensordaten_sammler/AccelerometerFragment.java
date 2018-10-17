@@ -11,13 +11,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.lang.reflect.Array;
 
 public class AccelerometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
     Button startStopBtnAcc;
+    Spinner sampleFreqSpinnerAcc;
 
     @Nullable
     @Override
@@ -25,6 +30,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         View view = inflater.inflate(R.layout.fragment_accelerometer, container, false);
         startStopBtnAcc = view.findViewById(R.id.bStartStopAcc);
         startStopBtnAcc.setOnClickListener(this);
+        sampleFreqSpinnerAcc = view.findViewById(R.id.spinnerSampleFreqAcc);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
+        adapter.setDropDownViewResource(R.layout.spinner_layout);
+        sampleFreqSpinnerAcc.setAdapter(adapter);
         return view;
     }
 
@@ -76,7 +85,15 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         String buttonText = startStopBtnAcc.getText().toString();
                         if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
                             Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                            MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
+                            String sampleFreq = sampleFreqSpinnerAcc.getSelectedItem().toString();
+                            int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                            if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])){
+                                sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                            }
+                            else if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])){
+                                sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+                            }
+                            MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                             startStopBtnAcc.setText(getResources().getString(R.string.stop_listening_btn));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -97,4 +114,5 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         }
 
     }
+
 }

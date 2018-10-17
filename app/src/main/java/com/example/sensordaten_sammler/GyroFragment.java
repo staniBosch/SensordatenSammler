@@ -11,20 +11,29 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class GyroFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
     Button startStopBtnGyro;
+    Spinner sampleFreqSpinnerGyro;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gyro, container, false);
+
         startStopBtnGyro = view.findViewById(R.id.bStartStopGyro);
         startStopBtnGyro.setOnClickListener(this);
+
+        sampleFreqSpinnerGyro = view.findViewById(R.id.spinnerSampleFreqGyro);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
+        adapter.setDropDownViewResource(R.layout.spinner_layout);
+        sampleFreqSpinnerGyro.setAdapter(adapter);
         return view;
     }
 
@@ -76,7 +85,15 @@ public class GyroFragment extends Fragment implements SensorEventListener, View.
                     String buttonText = startStopBtnGyro.getText().toString();
                     if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
                         Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
+                        String sampleFreq = sampleFreqSpinnerGyro.getSelectedItem().toString();
+                        int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                        if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])){
+                            sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                        }
+                        else if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])){
+                            sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+                        }
+                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                         startStopBtnGyro.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtnGyro.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);

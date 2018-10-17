@@ -21,4 +21,9 @@
     <string name="x_valGyro">x:  %1$f rad/s</string>
     <string name="y_valGyro">y:  %1$f rad/s</string>
     <string name="z_valGyro">z:  %1$f rad/s</string>
+    <string-array id="samp_freq" name="sampling_frequencies">
+        <item id="normal">Normal</item>
+        <item id="schnell">Schnell</item>
+    </string-array>
+    <string name="label_sample_freq_spinner">Sampling-Frequenz:</string>
 </resources>
