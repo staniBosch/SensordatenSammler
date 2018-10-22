@@ -3,6 +3,7 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="settings_title_text">Einstellungen</string>
     <string name="accelerometer_title_text">Accelerometer</string>
     <string name="battery_title_text">Batterie</string>
     <string name="gps_title_text">GPS</string>
@@ -10,20 +11,95 @@
     <string name="light_title_text">Licht</string>
     <string name="bluetooth_title_text">Bluetooth</string>
     <string name="gyro_title_text">Gyroskop</string>
+    <string name="gravity_title_text">Schwerkraft</string>
+    <string name="step_counter_title_text">Schrittzähler</string>
     <string name="magnetometer_title_text">Magnetometer</string>
+    <string name="air_pressure_title_text">Umgebungsluftdruck</string>
+    <string name="env_temp_title_text">Umgebungstemperatur</string>
+    <string name="humidity_title_text">Luftfeuchtigkeit</string>
+    <string name="proximity_title_text">Proximity</string>
+    <string name="network_location_title_text">Netzwerk-Lokalisierung</string>
     <string name="compass_title_text">Kompass</string>
     <string name="sensor_list_title">Liste aller Sensoren</string>
     <string name="start_listening_btn">Sensordaten abhören</string>
     <string name="stop_listening_btn">Abhören der Sensordaten stoppen</string>
-    <string name="x_valAcc">x:  %1$f m/s²</string>
-    <string name="y_valAcc">y:  %1$f m/s²</string>
-    <string name="z_valAcc">z:  %1$f m/s²</string>
-    <string name="x_valGyro">x:  %1$f rad/s</string>
-    <string name="y_valGyro">y:  %1$f rad/s</string>
-    <string name="z_valGyro">z:  %1$f rad/s</string>
+    <string name="start_listening_btn_gps">GPS-Standortinformationen abfragen</string>
+    <string name="stop_listening_btn_gps">Abfragen der GPS-Standortinformationen stoppen</string>
+    <string name="start_listening_btn_network">Netzwerk-Standortinformationen abfragen</string>
+    <string name="stop_listening_btn_network">Abfragen der Netzwerk-Standortinformationen stoppen</string>
+    <string name="x_valAcc">x :  %1$f m/s²</string>
+    <string name="y_valAcc">y :  %1$f m/s²</string>
+    <string name="z_valAcc">z :  %1$f m/s²</string>
+    <string name="x_valGyro">x :  %1$f rad/s</string>
+    <string name="y_valGyro">y :  %1$f rad/s</string>
+    <string name="z_valGyro">z :  %1$f rad/s</string>
+    <string name="lat_valGPS">Breitengrad:\n%1$s</string>
+    <string name="long_valGPS">Längengrad:\n%1$s</string>
+    <string name="alt_valGPS">Höhe ü. NHN:\n%1$f m</string>
+    <string name="lat_valNetwork">Breitengrad:\n%1$s</string>
+    <string name="long_valNetwork">Längengrad:\n%1$s</string>
+    <string name="alt_valNetwork">Höhe ü. NHN:\n%1$f m</string>
+    <string name="x_valMagnetom">x :  %1$f µT</string>
+    <string name="y_valMagnetom">y :  %1$f µT</string>
+    <string name="z_valMagnetom">z :  %1$f µT</string>
+    <string name="x_valGravity">x :  %1$f m/s²</string>
+    <string name="y_valGravity">y :  %1$f m/s²</string>
+    <string name="z_valGravity">z :  %1$f m/s²</string>
+    <string name="val_StepCounter">Schritte:  %1$f</string>
+    <string name="illuminance">Beleuchtungsstärke:  %1$f lx</string>
+    <string name="ambient_temp">Umgebungstemperatur:  %1$f °C</string>
+    <string name="ambient_air_pressure">Umgebungsluftdruck:  %1$f hPa or mbar</string>
+    <string name="relative_humidity">Luftfeuchtigkeit:  %1$f %%</string>
+    <string name="proximity">Proximity:  %1$f cm</string>
+    <string name="x_valMagnetomEmpty">x :  %1$s µT</string>
+    <string name="y_valMagnetomEmpty">y :  %1$s µT</string>
+    <string name="z_valMagnetomEmpty">z :  %1$s µT</string>
+    <string name="illuminanceEmpty">Beleuchtungsstärke:  %1$s lx</string>
+    <string name="ambient_tempEmpty">Umgebungstemperatur:  %1$s °C</string>
+    <string name="ambient_air_pressureEmpty">Umgebungsluftdruck:  %1$s hPa or mbar</string>
+    <string name="relative_humidityEmpty">Luftfeuchtigkeit:  %1$s %%</string>
+    <string name="proximityEmpty">Proximity:  %1$s cm</string>
+    <string name="val_StepCounterEmpty">Schritte:  %1$s</string>
+    <string name="x_valAccEmpty">x :  %1$s m/s²</string>
+    <string name="y_valAccEmpty">y :  %1$s m/s²</string>
+    <string name="z_valAccEmpty">z :  %1$s m/s²</string>
+    <string name="x_valGyroEmpty">x :  %1$s rad/s</string>
+    <string name="y_valGyroEmpty">y :  %1$s rad/s</string>
+    <string name="z_valGyroEmpty">z :  %1$s rad/s</string>
+    <string name="x_valGravityEmpty">x :  %1$s m/s²</string>
+    <string name="y_valGravityEmpty">y :  %1$s m/s²</string>
+    <string name="z_valGravityEmpty">z :  %1$s m/s²</string>
+    <string name="lat_valGPSEmpty">Breitengrad:\n%1$s</string>
+    <string name="long_valGPSEmpty">Längengrad:\n%1$s</string>
+    <string name="alt_valGPSEmpty">Höhe ü. NHN:\n%1$s</string>
+    <string name="lat_valNetworkEmpty">Breitengrad:\n%1$s</string>
+    <string name="long_valNetworkEmpty">Längengrad:\n%1$s</string>
+    <string name="alt_valNetworkEmpty">Höhe ü. NHN:\n%1$s</string>
     <string-array id="samp_freq" name="sampling_frequencies">
         <item id="normal">Normal</item>
         <item id="schnell">Schnell</item>
     </string-array>
     <string name="label_sample_freq_spinner">Sampling-Frequenz:</string>
+    <string name="label__intervall_gps">Zeitintervall in ms</string>
+    <string name="label__change_in_dist_gps">Positionsdifferenz in m</string>
+    <string name="details_textfield_acc_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f m/s²&lt;br>Max-Bereich: %6$f m/s²</string>
+    <string name="details_textfield_acc_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f m/s²\nMax-Bereich: %6$f m/s²</string>
+    <string name="details_textfield_gravity_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f m/s²&lt;br>Max-Bereich: %6$f m/s²</string>
+    <string name="details_textfield_gravity_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f m/s²\nMax-Bereich: %6$f m/s²</string>
+    <string name="details_textfield_gyro_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f rad/s&lt;br>Max-Bereich: %6$f rad/s</string>
+    <string name="details_textfield_gyro_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f rad/s\nMax-Bereich: %6$f rad/s</string>
+    <string name="details_textfield_magnetom_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f µT&lt;br>Max-Bereich: %6$f µT</string>
+    <string name="details_textfield_magnetom_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f µT\nMax-Bereich: %6$f µT</string>
+    <string name="details_textfield_light_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f lx&lt;br>Max-Bereich: %6$f lx</string>
+    <string name="details_textfield_light_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f lx\nMax-Bereich: %6$f lx</string>
+    <string name="details_textfield_ambient_temp_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f °C&lt;br>Max-Bereich: %6$f °C</string>
+    <string name="details_textfield_ambient_temp_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f °C\nMax-Bereich: %6$f °C</string>
+    <string name="details_textfield_humidity_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f %%&lt;br>Max-Bereich: %6$f %%</string>
+    <string name="details_textfield_humidity_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f %%\nMax-Bereich: %6$f %%</string>
+    <string name="details_textfield_pressure_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f hPa or mbar&lt;br>Max-Bereich: %6$f hPa or mbar</string>
+    <string name="details_textfield_pressure_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f hPa or mbar\nMax-Bereich: %6$f hPa or mbar</string>
+    <string name="details_textfield_proximity_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f cm&lt;br>Max-Bereich: %6$f cm</string>
+    <string name="details_textfield_proximity_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f cm\nMax-Bereich: %6$f cm</string>
+    <string name="details_textfield_step_counter_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f &lt;br>Max-Bereich: %6$f</string>
+    <string name="details_textfield_step_counter_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f\nMax-Bereich: %6$f</string>
 </resources>

@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/settings_button"
+        android:title="Einstellungen"
+        app:showAsAction="never"></item>
+
+    <item
         android:id="@+id/all_sensors_button"
-        android:title="Liste aller Sensoren mit allen Details"
+        android:title="Detaillierte Liste aller Sensoren deines Gerätes"
         app:showAsAction="never"></item>
 </menu>

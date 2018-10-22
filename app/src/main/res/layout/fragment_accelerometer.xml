@@ -1,64 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:fillViewport="true"
+    android:padding="10sp">
 
-
-    <TextView
-        android:id="@+id/xValueAcc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20sp"
-        android:textSize="30sp" />
-
-    <TextView
-        android:id="@+id/yValueAcc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/xValueAcc"
-        android:padding="20sp"
-        android:textSize="30sp" />
-
-
-    <TextView
-        android:id="@+id/zValueAcc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/yValueAcc"
-        android:padding="20sp"
-        android:textSize="30sp" />
-
-    <Button
-        android:id="@+id/bStartStopAcc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/zValueAcc"
-        android:drawableStart="@drawable/ic_play_arrow"
-        android:drawableLeft="@drawable/ic_play_arrow"
-        android:text="@string/start_listening_btn"
-        android:textSize="20sp" />
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/bStartStopAcc" >
+        android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/spinnerLabelAcc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/label_sample_freq_spinner"
+                android:textSize="20sp" />
+
+            <Spinner
+                android:id="@+id/spinnerSampleFreqAcc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/spinnerLabelAcc"
+                android:layout_toEndOf="@id/spinnerLabelAcc"/>
+
+
+        <Button
+            android:id="@+id/bStartStopAcc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinnerLabelAcc"
+            android:drawableLeft="@drawable/ic_play_arrow"
+            android:drawableStart="@drawable/ic_play_arrow"
+            android:text="@string/start_listening_btn"
+            android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/spinnerLabelAcc"
+            android:id="@+id/xValueAcc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10sp"
             android:textSize="20sp"
-            android:text="@string/label_sample_freq_spinner"/>
-        <Spinner
-            android:id="@+id/spinnerSampleFreqAcc"
+            android:layout_below="@id/bStartStopAcc"/>
+
+        <TextView
+            android:id="@+id/yValueAcc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="20sp">
-        </Spinner>
-    </LinearLayout>
+            android:layout_below="@+id/xValueAcc"
+            android:padding="10sp"
+            android:textSize="20sp" />
 
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/zValueAcc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/yValueAcc"
+            android:padding="10sp"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/detailsAcc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/zValueAcc"
+            android:padding="10sp"
+            android:textSize="20sp"
+            android:layout_marginTop="10sp" />
+    </RelativeLayout>
+</ScrollView>

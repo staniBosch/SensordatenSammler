@@ -19,6 +19,38 @@
             android:icon="@drawable/ic_magnetometer"
             android:title="Magnetometer" />
         <item
+            android:id="@+id/nav_network_location"
+            android:icon="@drawable/ic_network_location"
+            android:title="Netzwerk-Lokalisierung" />
+        <item
+            android:id="@+id/nav_light"
+            android:icon="@drawable/ic_light"
+            android:title="Licht" />
+        <item
+            android:id="@+id/nav_env_temp"
+            android:icon="@drawable/ic_env_temp"
+            android:title="Umgebungstemperatur" />
+        <item
+            android:id="@+id/nav_humidity"
+            android:icon="@drawable/ic_humidity"
+            android:title="Luftfeuchtigkeit" />
+        <item
+            android:id="@+id/nav_pressure"
+            android:icon="@drawable/ic_pressure"
+            android:title="Umgebungsluftdruck" />
+        <item
+            android:id="@+id/nav_proximity"
+            android:icon="@drawable/ic_proximity"
+            android:title="Proximity" />
+        <item
+            android:id="@+id/nav_gravity"
+            android:icon="@drawable/ic_gravity"
+            android:title="Schwerkraft" />
+        <item
+            android:id="@+id/nav_step_counter"
+            android:icon="@drawable/ic_step_counter"
+            android:title="Schrittzähler" />
+        <item
             android:id="@+id/nav_compass"
             android:icon="@drawable/ic_compass"
             android:title="Kompass" />
@@ -26,10 +58,6 @@
             android:id="@+id/nav_wifi"
             android:icon="@drawable/ic_network_wifi"
             android:title="WiFi" />
-        <item
-            android:id="@+id/nav_light"
-            android:icon="@drawable/ic_light"
-            android:title="Licht" />
         <item
             android:id="@+id/nav_bluetooth"
             android:icon="@drawable/ic_bluetooth"

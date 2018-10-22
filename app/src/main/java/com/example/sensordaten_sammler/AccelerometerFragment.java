@@ -1,14 +1,21 @@
 package com.example.sensordaten_sammler;
 
+import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,6 +30,8 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     Button startStopBtnAcc;
     Spinner sampleFreqSpinnerAcc;
+    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc;
+    Sensor sensorToBeListenedTo;
 
     @Nullable
     @Override
@@ -34,7 +43,30 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
+
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        tvAllDetailsAcc = getActivity().findViewById(R.id.detailsAcc);
+        tvXVal = getActivity().findViewById(R.id.xValueAcc);
+        tvYVal = getActivity().findViewById(R.id.yValueAcc);
+        tvZVal = getActivity().findViewById(R.id.zValueAcc);
+        tvXVal.setText(getString(R.string.x_valAccEmpty, "--"));
+        tvYVal.setText(getString(R.string.y_valAccEmpty, "--"));
+        tvZVal.setText(getString(R.string.z_valAccEmpty, "--"));
+        sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if(sensorToBeListenedTo != null){
+            if(Build.VERSION.SDK_INT >= 24)
+                displaySensorDetailsWithStyle(sensorToBeListenedTo);
+            else
+                displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
+        }
+        else{
+            Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -49,26 +81,17 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         String buttonText = startStopBtnAcc.getText().toString();
         if (buttonText.compareTo(getResources().getString(R.string.stop_listening_btn)) == 0) {
             startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
-            Drawable img = getContext().getResources().getDrawable( R.drawable.ic_play_arrow);
-            startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds( img, null, null, null);
+            Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
+            startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        TextView tvXVal = null, tvYVal = null, tvZVal = null;
-        View contentView = getView();
-        if (contentView != null) {
-            tvXVal = getActivity().findViewById(R.id.xValueAcc);
-            tvYVal = getActivity().findViewById(R.id.yValueAcc);
-            tvZVal = getActivity().findViewById(R.id.zValueAcc);
-            if (tvXVal != null)
-                tvXVal.setText(getString(R.string.x_valAcc, event.values[0]));
-            if (tvYVal != null)
-                tvYVal.setText(getString(R.string.y_valAcc, event.values[1]));
-            if (tvZVal != null)
-                tvZVal.setText(getString(R.string.z_valAcc, event.values[2]));
-        }
+        tvXVal.setText(getString(R.string.x_valAcc, event.values[0]));
+        tvYVal.setText(getString(R.string.y_valAcc, event.values[1]));
+        tvZVal.setText(getString(R.string.z_valAcc, event.values[2]));
+
     }
 
     @Override
@@ -78,41 +101,53 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.bStartStopAcc:
-                    if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-                        // Success! The sensor exists on the device.
-                        String buttonText = startStopBtnAcc.getText().toString();
-                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
-                            Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                            String sampleFreq = sampleFreqSpinnerAcc.getSelectedItem().toString();
-                            int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
-                            if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])){
-                                sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
-                            }
-                            else if(sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])){
-                                sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
-                            }
-                            MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
-                            startStopBtnAcc.setText(getResources().getString(R.string.stop_listening_btn));
-                            Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
-                            startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
+                    // Success! The sensor exists on the device.
+                    String buttonText = startStopBtnAcc.getText().toString();
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
+                        String sampleFreq = sampleFreqSpinnerAcc.getSelectedItem().toString();
+                        int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                        if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
+                            sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                        } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
+                            sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
                         }
-                        else {
-                            Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                            MainActivity.sensorManager.unregisterListener(this, sensor);
-                            startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
-                            Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
-                            startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                        }
+                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
+                        startStopBtnAcc.setText(getResources().getString(R.string.stop_listening_btn));
+                        Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
+                        startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                     } else {
-                        // Failure! Sensor not found on device.
-                        Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
+                        Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                        MainActivity.sensorManager.unregisterListener(this, sensor);
+                        startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
+                        Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
+                        startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                     }
+                } else {
+                    // Failure! Sensor not found on device.
+                    Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
+                }
 
                 break;
         }
 
+    }
+
+    @TargetApi(24)
+    private void displaySensorDetailsWithStyle(Sensor sensorToBeListenedTo) {
+        String text = getString(R.string.details_textfield_acc_withStyle, sensorToBeListenedTo.getName()
+                , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
+                sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
+        tvAllDetailsAcc.setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+    }
+
+    private void displaySensorDetailsWithoutStyle(Sensor sensorToBeListenedTo) {
+        String text = getString(R.string.details_textfield_acc_withoutStyle, sensorToBeListenedTo.getName()
+                , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
+                sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
+        tvAllDetailsAcc.setText(text);
     }
 
 }

@@ -1,7 +1,12 @@
 package com.example.sensordaten_sammler;
 
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
+import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.location.LocationManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -10,27 +15,32 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
     public static SensorManager sensorManager;
+    public static LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
         navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -44,16 +54,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (getSupportActionBar() != null)
                 getSupportActionBar().setTitle(R.string.accelerometer_title_text);
         }
+
+
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.nav_accelerometer:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new AccelerometerFragment()).commit();
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(R.string.accelerometer_title_text);
+                break;
+            case R.id.nav_pressure:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new PressureFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.air_pressure_title_text);
+                break;
+            case R.id.nav_humidity:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new HumidityFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.humidity_title_text);
+                break;
+            case R.id.nav_env_temp:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new EnvTempFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.env_temp_title_text);
+                break;
+            case R.id.nav_proximity:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new ProximityFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.proximity_title_text);
+                break;
+            case R.id.nav_network_location:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new NetworkLocationFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.network_location_title_text);
                 break;
             case R.id.nav_battery:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -103,10 +146,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(R.string.gyro_title_text);
                 break;
+            case R.id.nav_gravity:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new GravityFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.gravity_title_text);
+                break;
+            case R.id.nav_step_counter:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new StepCounterFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle(R.string.step_counter_title_text);
+                break;
         }
-
         drawer.closeDrawer(GravityCompat.START);
-
         return true;
     }
 
@@ -120,6 +173,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+//            case R.id.settings_button:
+//                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+//                        new SettingsFragment()).commit();
+//                if (getSupportActionBar() != null)
+//                    getSupportActionBar().setTitle(R.string.settings_title_text);
+//                break;
             case R.id.all_sensors_button:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new ListofAllAvailableSensorsFragment()).commit();
