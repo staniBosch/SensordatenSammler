@@ -1,6 +1,7 @@
 package com.example.sensordaten_sammler;
 
 import android.annotation.TargetApi;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -24,7 +25,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.lang.reflect.Array;
+import java.sql.Time;
 
 public class AccelerometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -32,6 +40,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     Spinner sampleFreqSpinnerAcc;
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc;
     Sensor sensorToBeListenedTo;
+    GraphView graphAcc;
+    LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    double graphLastXValTime;
+//    long startTime;
 
     @Nullable
     @Override
@@ -43,7 +55,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
-
+//        startTime = System.nanoTime() / 10000000;
         return view;
     }
 
@@ -63,12 +75,42 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                 displaySensorDetailsWithStyle(sensorToBeListenedTo);
             else
                 displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
+            setUpGraphView();
         }
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void setUpGraphView(){
+        graphAcc = (GraphView) getActivity().findViewById(R.id.graphAcc);
+        graphAcc.getViewport().setYAxisBoundsManual(true);
+        graphAcc.getViewport().setMinY(-1 * sensorToBeListenedTo.getMaximumRange());
+        graphAcc.getViewport().setMaxY(sensorToBeListenedTo.getMaximumRange());
+        graphAcc.getViewport().setMinX(0);
+        graphAcc.getViewport().setMaxX(100);
+        graphAcc.getViewport().setXAxisBoundsManual(true);
+        graphAcc.getLegendRenderer().setVisible(true);
+        graphAcc.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphAcc.getLegendRenderer().setPadding(5);
+        graphAcc.getLegendRenderer().setTextSize(25);
+        graphAcc.getLegendRenderer().setMargin(30);
+        graphAcc.getGridLabelRenderer().setVerticalAxisTitle("m/s²");
+        graphAcc.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphAcc.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX = new LineGraphSeries<DataPoint>();
+        seriesX.setColor(Color.BLUE);
+        seriesX.setTitle("X");
+        graphAcc.addSeries(seriesX);
+        seriesY = new LineGraphSeries<DataPoint>();
+        seriesY.setColor(Color.GREEN);
+        seriesY.setTitle("Y");
+        graphAcc.addSeries(seriesY);
+        seriesZ = new LineGraphSeries<DataPoint>();
+        seriesZ.setColor(Color.RED);
+        seriesZ.setTitle("Z");
+        graphAcc.addSeries(seriesZ);
+    }
     @Override
     public void onResume() {
         super.onResume();
@@ -91,7 +133,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         tvXVal.setText(getString(R.string.x_valAcc, event.values[0]));
         tvYVal.setText(getString(R.string.y_valAcc, event.values[1]));
         tvZVal.setText(getString(R.string.z_valAcc, event.values[2]));
-
+        seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
+        seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
+        graphLastXValTime++;
     }
 
     @Override

@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
             <TextView
-                android:id="@+id/spinnerLabelAcc"
+                android:id="@+id/spinnerLabelProximity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10sp"
@@ -19,62 +19,38 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/spinnerSampleFreqAcc"
+                android:id="@+id/spinnerSampleFreqProximity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/spinnerLabelAcc"
-                android:layout_toEndOf="@id/spinnerLabelAcc"/>
+                android:layout_toRightOf="@id/spinnerLabelProximity"
+                android:layout_toEndOf="@id/spinnerLabelProximity"/>
 
 
         <Button
-            android:id="@+id/bStartStopAcc"
+            android:id="@+id/bStartStopProximity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/spinnerLabelAcc"
+            android:layout_below="@+id/spinnerLabelProximity"
             android:drawableLeft="@drawable/ic_play_arrow"
             android:drawableStart="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/xValueAcc"
+            android:id="@+id/valProximity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10sp"
             android:textSize="20sp"
-            android:layout_below="@id/bStartStopAcc"/>
+            android:layout_below="@id/bStartStopProximity"/>
 
         <TextView
-            android:id="@+id/yValueAcc"
+            android:id="@+id/detailsProximity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/xValueAcc"
-            android:padding="10sp"
-            android:textSize="20sp" />
-
-
-        <TextView
-            android:id="@+id/zValueAcc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/yValueAcc"
-            android:padding="10sp"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/detailsAcc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/zValueAcc"
+            android:layout_below="@+id/valProximity"
             android:padding="10sp"
             android:textSize="20sp"
-            android:layout_marginTop="10sp" />
-
-        <com.jjoe64.graphview.GraphView
-            android:layout_width="match_parent"
-            android:layout_height="200dip"
-            android:id="@+id/graphAcc"
-            android:layout_below="@+id/detailsAcc"
             android:layout_marginTop="10sp" />
     </RelativeLayout>
 </ScrollView>

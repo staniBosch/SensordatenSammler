@@ -11,7 +11,7 @@
         android:orientation="vertical">
 
             <TextView
-                android:id="@+id/spinnerLabelAcc"
+                android:id="@+id/spinnerLabelTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10sp"
@@ -19,62 +19,39 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/spinnerSampleFreqAcc"
+                android:id="@+id/spinnerSampleFreqTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/spinnerLabelAcc"
-                android:layout_toEndOf="@id/spinnerLabelAcc"/>
+                android:layout_toRightOf="@id/spinnerLabelTemp"
+                android:layout_toEndOf="@id/spinnerLabelTemp"/>
 
 
         <Button
-            android:id="@+id/bStartStopAcc"
+            android:id="@+id/bStartStopTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/spinnerLabelAcc"
+            android:layout_below="@+id/spinnerLabelTemp"
             android:drawableLeft="@drawable/ic_play_arrow"
             android:drawableStart="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/xValueAcc"
+            android:id="@+id/tempValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10sp"
             android:textSize="20sp"
-            android:layout_below="@id/bStartStopAcc"/>
-
-        <TextView
-            android:id="@+id/yValueAcc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/xValueAcc"
-            android:padding="10sp"
-            android:textSize="20sp" />
+            android:layout_below="@id/bStartStopTemp"/>
 
 
         <TextView
-            android:id="@+id/zValueAcc"
+            android:id="@+id/detailsTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/yValueAcc"
-            android:padding="10sp"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/detailsAcc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/zValueAcc"
+            android:layout_below="@+id/tempValue"
             android:padding="10sp"
             android:textSize="20sp"
-            android:layout_marginTop="10sp" />
-
-        <com.jjoe64.graphview.GraphView
-            android:layout_width="match_parent"
-            android:layout_height="200dip"
-            android:id="@+id/graphAcc"
-            android:layout_below="@+id/detailsAcc"
             android:layout_marginTop="10sp" />
     </RelativeLayout>
 </ScrollView>
