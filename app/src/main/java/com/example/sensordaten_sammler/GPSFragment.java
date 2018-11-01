@@ -24,6 +24,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
@@ -162,6 +174,20 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                                     tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
+
+                                JSONObject gpsData = new JSONObject();
+                                JSONArray jsonArray = new JSONArray();
+                                try{
+                                    gpsData.put("Latitude", latitude);
+                                    gpsData.put("Longitude", longitude);
+                                    gpsData.put("Hoehe", altitude);
+                                    jsonArray.put(gpsData);
+                                }
+                                catch (JSONException e){
+                                    e.printStackTrace();
+                                }
+                                new ConnectionRest().execute("gps",jsonArray.toString());
+                                Log.d("RESTAPI",jsonArray.toString());
                             }
                         } else {
                             MainActivity.locationManager.removeUpdates(this);
