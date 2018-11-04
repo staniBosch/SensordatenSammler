@@ -39,9 +39,13 @@ import java.net.URL;
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
-    Button startStopBtnGPS;
+    Button startStopBtnGPS ,svBtn;
     EditText timeIntervMs, posChangeInM;
     TextView tvLat, tvLong, tvAlt;
+
+    double latitude1;
+    double longitude1;
+    double altitude1;
 
     @Nullable
     @Override
@@ -49,6 +53,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         View view = inflater.inflate(R.layout.fragment_gps, container, false);
         startStopBtnGPS = view.findViewById(R.id.bStartStopGPS);
         startStopBtnGPS.setOnClickListener(this);
+        svBtn = view.findViewById(R.id.svbtn);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeGPS);
         posChangeInM = view.findViewById(R.id.minPosChangeGPS);
         return view;
@@ -63,21 +68,27 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         tvLat.setText(getString(R.string.lat_valGPSEmpty, "--"));
         tvLong.setText(getString(R.string.long_valGPSEmpty, "--"));
         tvAlt.setText(getString(R.string.alt_valGPSEmpty, "--"));
+        svBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               sendDataRest(latitude1, longitude1,altitude1);
+            }
+        });
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.d("test", "in onLocationChanged");
         if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            double altitude = location.getAltitude();
+            this.latitude1 = location.getLatitude();
+            this.longitude1 = location.getLongitude();
+            this.altitude1 = location.getAltitude();
 
             Activity activity = getActivity();
             if (isAdded() && activity != null) {
-                tvLat.setText(getString(R.string.lat_valGPS, convertLatitude(latitude)));
-                tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
-                tvAlt.setText(getString(R.string.alt_valGPS, altitude));
+                tvLat.setText(getString(R.string.lat_valGPS, convertLatitude(this.latitude1)));
+                tvLong.setText(getString(R.string.long_valGPS, convertLongitude(this.longitude1)));
+                tvAlt.setText(getString(R.string.alt_valGPS, this.altitude1));
             }
         }
     }
@@ -174,20 +185,6 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                                     tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
-
-                                JSONObject gpsData = new JSONObject();
-                                JSONArray jsonArray = new JSONArray();
-                                try{
-                                    gpsData.put("Latitude", latitude);
-                                    gpsData.put("Longitude", longitude);
-                                    gpsData.put("Hoehe", altitude);
-                                    jsonArray.put(gpsData);
-                                }
-                                catch (JSONException e){
-                                    e.printStackTrace();
-                                }
-                                new ConnectionRest().execute("gps",jsonArray.toString());
-                                Log.d("RESTAPI",jsonArray.toString());
                             }
                         } else {
                             MainActivity.locationManager.removeUpdates(this);
@@ -262,6 +259,22 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+    }
+
+    private void sendDataRest(double ... params){
+        JSONObject gpsData = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        try{
+            gpsData.put("Latitude", params[0]);
+            gpsData.put("Longitude", params[1]);
+            gpsData.put("Hoehe", params[2]);
+            jsonArray.put(gpsData);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("gps",jsonArray.toString());
+        Log.d("RESTAPI",gpsData.toString());
     }
 
 }
