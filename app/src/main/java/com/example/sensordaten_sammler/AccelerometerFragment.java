@@ -1,6 +1,11 @@
 package com.example.sensordaten_sammler;
 
 import android.annotation.TargetApi;
+
+
+import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -10,6 +15,7 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +38,13 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Array;
 import java.sql.Time;
+
+import static java.lang.System.*;
 
 public class AccelerometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -41,21 +53,27 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc;
     Sensor sensorToBeListenedTo;
     GraphView graphAcc;
+    CheckBox csvAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
     double graphLastXValTime;
+    String fileName = "ACCFile.csv";
+
 //    long startTime;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accelerometer, container, false);
+        csvAcc = view.findViewById(R.id.csvBoxAcc);
+        csvAcc.setEnabled(true);
         startStopBtnAcc = view.findViewById(R.id.bStartStopAcc);
         startStopBtnAcc.setOnClickListener(this);
         sampleFreqSpinnerAcc = view.findViewById(R.id.spinnerSampleFreqAcc);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
-//        startTime = System.nanoTime() / 10000000;
+        saveFile("Zeit"+"," + "X-Achse" + "," + "Y-Achse" + ","+ "Z-Achse"+"\n");
+        //startTime = System.nanoTime() / 10000000;
         return view;
     }
 
@@ -137,15 +155,55 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
+        if(csvAcc.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+    public void saveFile(String text)
+    {
 
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+    }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
+    }
     @Override
     public void onClick(View v) {
+
+
+
         switch (v.getId()) {
             case R.id.bStartStopAcc:
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {

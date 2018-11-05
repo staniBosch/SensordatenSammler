@@ -18,10 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Array;
 
 public class LightFragment extends Fragment implements SensorEventListener, View.OnClickListener {
@@ -30,6 +33,8 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     Spinner sampleFreqSpinnerLight;
     TextView lightVal, tvAllDetailsLight;
     Sensor sensorToBeListenedTo;
+    String fileName = "LightFile.csv";
+    CheckBox csvLight;
 
     @Nullable
     @Override
@@ -41,6 +46,9 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerLight.setAdapter(adapter);
+        csvLight = view.findViewById(R.id.csvBoxLight);
+        csvLight.setEnabled(true);
+        saveFile("Zeit"+"," + "Light" +"\n");
         return view;
     }
 
@@ -82,6 +90,11 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     @Override
     public void onSensorChanged(SensorEvent event) {
         lightVal.setText(getString(R.string.illuminance, event.values[0]));
+        if(csvLight.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -139,5 +152,37 @@ public class LightFragment extends Fragment implements SensorEventListener, View
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsLight.setText(text);
     }
+    public void saveFile(String text)
+    {
 
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
+    }
 }

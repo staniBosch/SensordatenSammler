@@ -20,9 +20,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -30,6 +34,8 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
     Button startStopBtnGPS;
     EditText timeIntervMs, posChangeInM;
     TextView tvLat, tvLong, tvAlt;
+    String fileName = "GPSFile.csv";
+    CheckBox csvGPS;
 
     @Nullable
     @Override
@@ -39,6 +45,9 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         startStopBtnGPS.setOnClickListener(this);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeGPS);
         posChangeInM = view.findViewById(R.id.minPosChangeGPS);
+        csvGPS = view.findViewById(R.id.csvBoxGps);
+        csvGPS.setEnabled(true);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe"+"\n");
         return view;
     }
 
@@ -66,6 +75,10 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                 tvLat.setText(getString(R.string.lat_valGPS, convertLatitude(latitude)));
                 tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
                 tvAlt.setText(getString(R.string.alt_valGPS, altitude));
+                if(csvGPS.isChecked()) {
+                    saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLongitude(longitude) + "," + altitude+"\n");
+                    //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -236,6 +249,39 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }

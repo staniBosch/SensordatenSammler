@@ -68,5 +68,17 @@
             android:layout_below="@+id/longValueGPS"
             android:padding="10sp"
             android:textSize="20sp" />
+
+        <CheckBox
+            android:id="@+id/csvBoxGps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="168dp"
+            android:layout_marginEnd="17dp"
+            android:layout_marginRight="11dp"
+            android:text="Speichern .csv" />
     </RelativeLayout>
 </ScrollView>

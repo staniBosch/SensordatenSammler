@@ -17,16 +17,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class ProximityFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
     Button startStopBtnProximity;
     Spinner sampleFreqSpinnerProximity;
     TextView proximityValue, tvAllDetailsProximity;
+    CheckBox csvProx;
     Sensor sensorToBeListenedTo;
+    String fileName = "ProxFile.csv";
 
     @Nullable
     @Override
@@ -38,6 +44,9 @@ public class ProximityFragment extends Fragment implements SensorEventListener, 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerProximity.setAdapter(adapter);
+        csvProx = view.findViewById(R.id.csvBoxProx);
+        csvProx.setEnabled(true);
+        saveFile("Zeit"+"," + "Proximity"+ "\n");
         return view;
     }
 
@@ -74,6 +83,10 @@ public class ProximityFragment extends Fragment implements SensorEventListener, 
     @Override
     public void onSensorChanged(SensorEvent event) {
         proximityValue.setText(getString(R.string.proximity, event.values[0]));
+        if(csvProx.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] + "\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -130,6 +143,39 @@ public class ProximityFragment extends Fragment implements SensorEventListener, 
                 , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsProximity.setText(text);
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }
