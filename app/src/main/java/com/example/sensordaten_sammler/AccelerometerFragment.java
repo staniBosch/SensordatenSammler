@@ -213,6 +213,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        saveswitch.setChecked(false);
                     }
                 } else {
                     // Failure! Sensor not found on device.
