@@ -21,7 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,8 +33,14 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AccelerometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -42,7 +50,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     Sensor sensorToBeListenedTo;
     GraphView graphAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    Switch saveswitch;
     double graphLastXValTime;
+    double x1,y1,z1;
+    Timer timer = new Timer();
 //    long startTime;
 
     @Nullable
@@ -56,6 +67,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
 //        startTime = System.nanoTime() / 10000000;
+        saveswitch = view.findViewById(R.id.switchsv_ac);
         return view;
     }
 
@@ -80,6 +92,35 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
         }
+
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                        JSONObject data = new JSONObject();
+
+                        try {
+                            data.put("x", x1);
+                            data.put("y", y1);
+                            data.put("z", z1);
+                            data.put("session_id", Session.getID());
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new ConnectionRest().execute("accelerometer", data.toString());
+                         Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     private void setUpGraphView(){
@@ -137,6 +178,9 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
+        x1 = event.values[0];
+        z1 = event.values[1];
+        y1 = event.values[2];
     }
 
     @Override
