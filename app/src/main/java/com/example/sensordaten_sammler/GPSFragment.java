@@ -49,9 +49,9 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
     String fileName = "GPSFile.csv";
     CheckBox csvGPS;
 
-    double latitude1;
-    double longitude1;
-    double altitude1;
+    double latitude;
+    double longitude;
+    double altitude;
 
     @Nullable
     @Override
@@ -80,7 +80,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         svBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               sendDataRest(latitude1, longitude1,altitude1);
+               sendDataRest(latitude, longitude,altitude);
             }
         });
     }
@@ -89,9 +89,9 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
     public void onLocationChanged(Location location) {
         Log.d("test", "in onLocationChanged");
         if (location != null) {
-            this.latitude1 = location.getLatitude();
-            this.longitude1 = location.getLongitude();
-            this.altitude1 = location.getAltitude();
+            this.latitude = location.getLatitude();
+            this.longitude = location.getLongitude();
+            this.altitude = location.getAltitude();
 
             Activity activity = getActivity();
             if (isAdded() && activity != null) {
