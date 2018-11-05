@@ -28,14 +28,30 @@ import android.widget.Toast;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
-    Button startStopBtnGPS;
+    Button startStopBtnGPS ,svBtn;
     EditText timeIntervMs, posChangeInM;
     TextView tvLat, tvLong, tvAlt;
     String fileName = "GPSFile.csv";
     CheckBox csvGPS;
+
+    double latitude1;
+    double longitude1;
+    double altitude1;
 
     @Nullable
     @Override
@@ -43,6 +59,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         View view = inflater.inflate(R.layout.fragment_gps, container, false);
         startStopBtnGPS = view.findViewById(R.id.bStartStopGPS);
         startStopBtnGPS.setOnClickListener(this);
+        svBtn = view.findViewById(R.id.svbtn);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeGPS);
         posChangeInM = view.findViewById(R.id.minPosChangeGPS);
         csvGPS = view.findViewById(R.id.csvBoxGps);
@@ -60,15 +77,21 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         tvLat.setText(getString(R.string.lat_valGPSEmpty, "--"));
         tvLong.setText(getString(R.string.long_valGPSEmpty, "--"));
         tvAlt.setText(getString(R.string.alt_valGPSEmpty, "--"));
+        svBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               sendDataRest(latitude1, longitude1,altitude1);
+            }
+        });
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.d("test", "in onLocationChanged");
         if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            double altitude = location.getAltitude();
+            this.latitude1 = location.getLatitude();
+            this.longitude1 = location.getLongitude();
+            this.altitude1 = location.getAltitude();
 
             Activity activity = getActivity();
             if (isAdded() && activity != null) {
@@ -282,6 +305,23 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         }
 
         return text;
+    }
+
+    private void sendDataRest(double ... params){
+        JSONObject gpsData = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        try{
+            gpsData.put("Latitude", params[0]);
+            gpsData.put("Longitude", params[1]);
+            gpsData.put("Hoehe", params[2]);
+            gpsData.put("session_id", Session.getID());
+            jsonArray.put(gpsData);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("gps",jsonArray.toString());
+        Log.d("RESTAPI",gpsData.toString());
     }
 
 }

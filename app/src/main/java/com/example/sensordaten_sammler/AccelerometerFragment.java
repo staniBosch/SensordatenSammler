@@ -28,7 +28,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +43,14 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static java.lang.System.*;
 
@@ -55,7 +63,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     GraphView graphAcc;
     CheckBox csvAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    Switch saveswitch;
     double graphLastXValTime;
+    double x1,y1,z1;
+    Timer timer = new Timer();
     String fileName = "ACCFile.csv";
 
 //    long startTime;
@@ -74,6 +85,8 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         sampleFreqSpinnerAcc.setAdapter(adapter);
         saveFile("Zeit"+"," + "X-Achse" + "," + "Y-Achse" + ","+ "Z-Achse"+"\n");
         //startTime = System.nanoTime() / 10000000;
+//        startTime = System.nanoTime() / 10000000;
+        saveswitch = view.findViewById(R.id.switchsv_ac);
         return view;
     }
 
@@ -98,6 +111,35 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
         }
+
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                        JSONObject data = new JSONObject();
+
+                        try {
+                            data.put("x", x1);
+                            data.put("y", y1);
+                            data.put("z", z1);
+                            data.put("session_id", Session.getID());
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new ConnectionRest().execute("accelerometer", data.toString());
+                         Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     private void setUpGraphView(){
@@ -160,6 +202,9 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
 
+        x1 = event.values[0];
+        y1 = event.values[1];
+        z1 = event.values[2];
     }
 
     @Override
@@ -201,9 +246,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     }
     @Override
     public void onClick(View v) {
-
-
-
         switch (v.getId()) {
             case R.id.bStartStopAcc:
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
@@ -227,6 +269,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        saveswitch.setChecked(false);
                     }
                 } else {
                     // Failure! Sensor not found on device.
