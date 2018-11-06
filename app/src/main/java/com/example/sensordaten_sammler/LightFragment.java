@@ -93,7 +93,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphAcc3);
         graphAcc3.getViewport().setYAxisBoundsManual(true);
         graphAcc3.getViewport().setMinY(0);
-        graphAcc3.getViewport().setMaxY(300);
+        graphAcc3.getViewport().setMaxY(3000);
         graphAcc3.getViewport().setMinX(0);
         graphAcc3.getViewport().setMaxX(50);
         graphAcc3.getViewport().setXAxisBoundsManual(true);

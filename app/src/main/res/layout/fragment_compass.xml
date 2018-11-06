@@ -1,14 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:padding="10sp">
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/graphCompass"
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:layout_below="@id/detailsCompass"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="11dp" />>
+
     <TextView
+        android:id="@+id/detailsCompass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Kompass Fragment"
-        android:textSize="30sp" />
+        android:layout_below="@id/valCompass"
+        android:layout_marginTop="10sp"
+        android:padding="10sp"
+        android:textSize="20sp" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/valCompass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bStartStopCompass"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:padding="10sp"
+        android:textSize="20sp" />
+
+    <CheckBox
+        android:id="@+id/csvBoxCompass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinnerLabelCompass"
+        android:padding="10sp"
+        android:text="@string/local_storage_checkbox"
+        android:textSize="20sp" />
+
+        <Switch
+        android:id="@+id/switchsvcompass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxCompass"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
+        <Button
+        android:id="@+id/bStartStopCompass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switchsvcompass"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
+            android:text="@string/start_listening_btn"
+            android:textSize="20sp" />
+
+        <Spinner
+            android:id="@+id/spinnerSampleFreqCompass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/spinnerLabelCompass"
+            android:layout_toEndOf="@id/spinnerLabelCompass"/>
+
+        <TextView
+        android:id="@+id/spinnerLabelCompass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10sp"
+        android:text="@string/label_sample_freq_spinner"
+        android:textSize="20sp" />
+    </RelativeLayout>
+</ScrollView>
