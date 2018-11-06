@@ -12,18 +12,26 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class EnvTempFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -32,7 +40,10 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
     TextView tempVal, tvAllDetailsTemp;
     Sensor sensorToBeListenedTo;
     CheckBox csvEnv;
+    Switch saveswitch;
     String fileName = "EnvFile.csv";
+    Timer timer = new Timer();
+    double value;
 
     @Nullable
     @Override
@@ -46,6 +57,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
         sampleFreqSpinnerTemp.setAdapter(adapter);
         csvEnv = view.findViewById(R.id.csvBoxEnv);
         csvEnv.setEnabled(true);
+        saveswitch = view.findViewById(R.id.switchsvenvt);
         saveFile("Zeit"+"," + "Umgebungstemperatur" +"\n");
 
 
@@ -68,6 +80,32 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt keinen Sensor für die Umgebungstemperatur!", Toast.LENGTH_SHORT).show();
         }
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("value", value);
+                                data.put("session_id", Session.getID());
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("umgebungstemperatur", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
@@ -94,6 +132,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
             saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
+        value = event.values[0];
     }
 
     @Override
