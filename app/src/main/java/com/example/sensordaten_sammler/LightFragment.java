@@ -20,7 +20,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,9 +32,14 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Array;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LightFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -40,11 +47,14 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     Spinner sampleFreqSpinnerLight;
     TextView lightVal, tvAllDetailsLight, tvCsvContent;
     Sensor sensorToBeListenedTo;
-    String fileName = "LightFile.csv";
+    private static final String fileName = "LightFile.csv";
     CheckBox csvLight;
     GraphView graphAcc3;
     LineGraphSeries<DataPoint> seriesX;
     double graphLastXValTime;
+    Switch saveswitch;
+    Timer timer;
+    double value;
 
     @Nullable
     @Override
@@ -58,6 +68,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         sampleFreqSpinnerLight.setAdapter(adapter);
         csvLight = view.findViewById(R.id.csvBoxLight);
         csvLight.setEnabled(true);
+        saveswitch = view.findViewById(R.id.switchsvlicht);
         return view;
     }
 
@@ -79,14 +90,39 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Sensor zur Messung der Beleuchtungsstärke!", Toast.LENGTH_SHORT).show();
         }
+
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("value", value);
+                                data.put("session_id", Session.getID(getContext()));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("licht", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
     }
-
-
 
 
     private void setUpGraphView(){

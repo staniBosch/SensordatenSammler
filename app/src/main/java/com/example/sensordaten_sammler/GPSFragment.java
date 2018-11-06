@@ -45,8 +45,9 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
     Button startStopBtnGPS ,svBtn;
     EditText timeIntervMs, posChangeInM;
+    TextView tvCsvContent;
     TextView tvLat, tvLong, tvAlt;
-    String fileName = "GPSFile.csv";
+    private static final String fileName = "GPSFile.csv";
     CheckBox csvGPS;
 
     double latitude;
@@ -64,7 +65,6 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         posChangeInM = view.findViewById(R.id.minPosChangeGPS);
         csvGPS = view.findViewById(R.id.csvBoxGps);
         csvGPS.setEnabled(true);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe"+"\n");
         return view;
     }
 
@@ -74,6 +74,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         tvLat = view.findViewById(R.id.latValueGPS);
         tvLong = view.findViewById(R.id.longValueGPS);
         tvAlt = view.findViewById(R.id.altValueGPS);
+        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFileGPS);
         tvLat.setText(getString(R.string.lat_valGPSEmpty, "--"));
         tvLong.setText(getString(R.string.long_valGPSEmpty, "--"));
         tvAlt.setText(getString(R.string.alt_valGPSEmpty, "--"));
@@ -99,7 +100,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                 tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
                 tvAlt.setText(getString(R.string.alt_valGPS, altitude));
                 if(csvGPS.isChecked()) {
-                    saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLongitude(longitude) + "," + altitude+"\n");
+                    saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLongitude(longitude) + "," + altitude+"\n", true);
                     //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -184,7 +185,8 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                             startStopBtnGPS.setText(getResources().getString(R.string.stop_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-
+                            if(csvGPS.isChecked())
+                                saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe"+"\n", false);
                             MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
                             Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (lastKnownLocation != null) {
@@ -204,6 +206,10 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                             startStopBtnGPS.setText(getResources().getString(R.string.start_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                            if(csvGPS.isChecked()) {
+                                Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
+                                tvCsvContent.setText(getFileContent(fileName));
+                            }
                         }
 
                     } else {
@@ -273,11 +279,15 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
     }
-    public void saveFile(String text)
+    public void saveFile(String text, boolean append)
     {
+        FileOutputStream fos = null;
 
         try {
-            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            if(append)
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            else
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -287,10 +297,10 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         }
 
     }
-    public String readFile(String file)
-    {
-        String text ="";
 
+    public String getFileContent(String file)
+    {
+        String text = "";
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();
