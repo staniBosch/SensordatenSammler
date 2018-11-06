@@ -102,7 +102,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
 
                             try {
                                 data.put("value", value);
-                                data.put("session_id", Session.getID());
+                                data.put("session_id", Session.getID(getContext()));
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -130,7 +130,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphAcc3);
         graphAcc3.getViewport().setYAxisBoundsManual(true);
         graphAcc3.getViewport().setMinY(0);
-        graphAcc3.getViewport().setMaxY(40000);
+        graphAcc3.getViewport().setMaxY(500);
         graphAcc3.getViewport().setMinX(0);
         graphAcc3.getViewport().setMaxX(50);
         graphAcc3.getViewport().setXAxisBoundsManual(true);
