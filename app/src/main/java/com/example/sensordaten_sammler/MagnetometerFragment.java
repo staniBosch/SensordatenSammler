@@ -19,13 +19,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Array;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MagnetometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -35,6 +42,9 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsMagnetom;
     Sensor sensorToBeListenedTo;
     String fileName = "MagFile.csv";
+    Switch saveswitch;
+    double x1,y1,z1;
+    Timer timer = new Timer();
 
     @Nullable
     @Override
@@ -49,6 +59,7 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         csvMag = view.findViewById(R.id.csvBoxMag);
         csvMag.setEnabled(true);
         saveFile("Zeit"+"," + "µT" + "," + "µT" + "\n");
+        saveswitch = view.findViewById(R.id.switchsvmagn);
         return view;
     }
 
@@ -72,6 +83,34 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Magnetometer!", Toast.LENGTH_SHORT).show();
         }
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("x", x1);
+                                data.put("y", y1);
+                                data.put("z", z1);
+                                data.put("session_id", Session.getID(getContext()));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("magnetometer", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
@@ -100,6 +139,9 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
             saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "\n");
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
+        x1 = event.values[0];
+        y1 = event.values[1];
+        z1 = event.values[2];
     }
 
     @Override

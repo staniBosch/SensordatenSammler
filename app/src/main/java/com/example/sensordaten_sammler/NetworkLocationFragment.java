@@ -21,12 +21,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class NetworkLocationFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -36,6 +43,9 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
     TextView tvLat, tvLong, tvAlt;
     CheckBox csvNetloc;
     String fileName = "NetLocFile.csv";
+    Switch saveswitch;
+    double x1,y1,z1;
+    Timer timer = new Timer();
 
     @Nullable
     @Override
@@ -48,6 +58,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
         csvNetloc = view.findViewById(R.id.csvBoxNetLoc);
         csvNetloc.setEnabled(true);
         saveFile("Zeit"+"," + "latitude" + "," + "longitude" + ","+ "altitude"+"\n");
+        saveswitch = view.findViewById(R.id.switchsvnetw);
         return view;
     }
 
@@ -60,6 +71,34 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
         tvLat.setText(getString(R.string.lat_valNetworkEmpty, "--"));
         tvLong.setText(getString(R.string.long_valNetworkEmpty, "--"));
         tvAlt.setText(getString(R.string.alt_valNetworkEmpty, "--"));
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("x", x1);
+                                data.put("y", y1);
+                                data.put("z", z1);
+                                data.put("session_id", Session.getID(getContext()));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("netzwerklokalisierung", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
@@ -80,6 +119,9 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                 saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLatitude(longitude) + "," + altitude+"\n");
                 //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
             }
+            x1 = latitude;
+            y1 = longitude;
+            z1 = altitude;
         }
 
     }
