@@ -2,7 +2,6 @@ package com.example.sensordaten_sammler;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.JsonWriter;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -11,12 +10,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -51,41 +47,47 @@ public class Session {
                             .url(urlstring)
                             .post(body)
                             .build();
-                    Response response = null;
+
                     try {
-                        response = client.newCall(request).execute();
+                        Response  response = client.newCall(request).execute();
                         JSONObject js = new JSONObject(response.body().string());
                         int i = js.getInt("id");
                         Session.ID = i;
                         Log.d("Response", "Added Device: with id: "+i);
 
+
+                        //Speichere lokal die SessionIDs ab
+                        String fname = "sessionID.json";
+                        File f = new File(ctx.getFilesDir(), fname);
+                        if(!f.exists()) try {
+                            f.createNewFile();
+                            FileOutputStream fos = ctx.openFileOutput(fname, Context.MODE_PRIVATE);
+                            fos.write("{\"session\":[]}".getBytes());
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         //lesen und jsonobj erstellen
-                        String sessionjson = "sessionID.json";
-                        StringBuffer datax = new StringBuffer("");
-                       File f = new File(ctx.getFilesDir(), sessionjson);
-                       if(!f.exists()) f.createNewFile();
-                       else {
-                           FileInputStream fis = ctx.openFileInput(sessionjson);
-                           InputStreamReader isr = new InputStreamReader(fis);
-                           BufferedReader bfr = new BufferedReader(isr);
-                           String readString = bfr.readLine();
-                           while (readString != null) {
-                               datax.append(readString);
-                               readString = bfr.readLine();
-                           }
 
-                           isr.close();
-                           //
+                        StringBuilder text = new StringBuilder();
+                        BufferedReader br = new BufferedReader(new FileReader(f));
+                        String line;
 
-                           //JSONArray jsonArray = new JSONArray(readString);
-                           Log.d("JSONREADED OMGGG", readString);
+                        while ((line = br.readLine()) != null) {
+                            text.append(line);
+                            text.append('\n');
+                        }
+                        br.close();
 
+                        JSONObject jsonSession = new JSONObject(text.toString());
 
-                       }
-
-                        FileOutputStream fos = ctx.openFileOutput(sessionjson,ctx.MODE_APPEND);
-                        fos.write(js.toString().getBytes());
+                        JSONArray jarray  = jsonSession.getJSONArray("session");
+                        jarray.put(js);
+                        //speichere alle Sessions lokal
+                        FileOutputStream fos = ctx.openFileOutput(fname, Context.MODE_PRIVATE);
+                        fos.write(jsonSession.toString().getBytes());
                         fos.close();
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
