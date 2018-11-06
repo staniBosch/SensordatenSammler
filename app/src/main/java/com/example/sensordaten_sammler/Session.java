@@ -1,13 +1,20 @@
 package com.example.sensordaten_sammler;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.util.JsonWriter;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +28,7 @@ public class Session {
 
     private static int ID =-1;
 
-    public static int getID(){
+    public static int getID(Context ctx){
 
         if(Session.ID<0){
 
@@ -47,9 +54,38 @@ public class Session {
                     Response response = null;
                     try {
                         response = client.newCall(request).execute();
-                        int i = new JSONObject(response.body().string()).getInt("id");
+                        JSONObject js = new JSONObject(response.body().string());
+                        int i = js.getInt("id");
                         Session.ID = i;
                         Log.d("Response", "Added Device: with id: "+i);
+
+                        //lesen und jsonobj erstellen
+                        String sessionjson = "sessionID.json";
+                        StringBuffer datax = new StringBuffer("");
+                       File f = new File(ctx.getFilesDir(), sessionjson);
+                       if(!f.exists()) f.createNewFile();
+                       else {
+                           FileInputStream fis = ctx.openFileInput(sessionjson);
+                           InputStreamReader isr = new InputStreamReader(fis);
+                           BufferedReader bfr = new BufferedReader(isr);
+                           String readString = bfr.readLine();
+                           while (readString != null) {
+                               datax.append(readString);
+                               readString = bfr.readLine();
+                           }
+
+                           isr.close();
+                           //
+
+                           //JSONArray jsonArray = new JSONArray(readString);
+                           Log.d("JSONREADED OMGGG", readString);
+
+
+                       }
+
+                        FileOutputStream fos = ctx.openFileOutput(sessionjson,ctx.MODE_APPEND);
+                        fos.write(js.toString().getBytes());
+                        fos.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -62,6 +98,9 @@ public class Session {
         return Session.ID;
     }
 
+    public static int getID(){
+        return Session.ID;
+    }
 
     }
 
