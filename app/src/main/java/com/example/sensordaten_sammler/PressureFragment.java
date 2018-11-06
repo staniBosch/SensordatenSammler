@@ -92,7 +92,7 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
 
                             try {
                                 data.put("value", value);
-                                data.put("session_id", Session.getID());
+                                data.put("session_id", Session.getID(getContext()));
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
