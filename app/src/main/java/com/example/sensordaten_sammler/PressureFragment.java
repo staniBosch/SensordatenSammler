@@ -12,18 +12,26 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class PressureFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -33,6 +41,9 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
     Sensor sensorToBeListenedTo;
     CheckBox csvPres;
     String fileName = "PresFile.csv";
+    Timer timer = new Timer();
+    double value;
+    Switch saveswitch;
 
 
     @Nullable
@@ -48,6 +59,7 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
         csvPres= view.findViewById(R.id.csvBoxPres);
         csvPres.setEnabled(true);
         saveFile("Zeit"+"," + "Pressure"+"\n");
+        saveswitch = view.findViewById(R.id.switchsvpressure);
         return view;
     }
 
@@ -68,6 +80,32 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt keinen Sensor zur Messung des Luftdrucks!", Toast.LENGTH_SHORT).show();
         }
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("value", value);
+                                data.put("session_id", Session.getID());
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("umgebungsluftdruck", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
@@ -94,6 +132,7 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
             saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
+        this.value = event.values[0];
     }
 
     @Override

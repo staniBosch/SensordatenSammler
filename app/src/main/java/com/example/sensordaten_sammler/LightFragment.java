@@ -20,7 +20,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,9 +32,14 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Array;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LightFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -45,6 +52,9 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     GraphView graphAcc3;
     LineGraphSeries<DataPoint> seriesX;
     double graphLastXValTime;
+    Timer timer = new Timer();
+    double value;
+    Switch saveswitch;
 
     @Nullable
     @Override
@@ -59,6 +69,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         csvLight = view.findViewById(R.id.csvBoxLight);
         csvLight.setEnabled(true);
         saveFile("Zeit"+"," + "Light" +"\n");
+        saveswitch = view.findViewById(R.id.switchsvlicht);
         return view;
     }
 
@@ -79,6 +90,32 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Sensor zur Messung der Beleuchtungsstärke!", Toast.LENGTH_SHORT).show();
         }
+        saveswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            JSONObject data = new JSONObject();
+
+                            try {
+                                data.put("value", value);
+                                data.put("session_id", Session.getID());
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            new ConnectionRest().execute("licht", data.toString());
+                            Log.d("RESTAPI", data.toString());
+                        }
+                    }, 0, 1000);
+                } else {
+                    timer.cancel();
+                }
+            }
+        });
     }
 
     @Override
@@ -93,7 +130,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphAcc3);
         graphAcc3.getViewport().setYAxisBoundsManual(true);
         graphAcc3.getViewport().setMinY(0);
-        graphAcc3.getViewport().setMaxY(300);
+        graphAcc3.getViewport().setMaxY(40000);
         graphAcc3.getViewport().setMinX(0);
         graphAcc3.getViewport().setMaxX(50);
         graphAcc3.getViewport().setXAxisBoundsManual(true);
@@ -131,6 +168,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     @Override
     public void onSensorChanged(SensorEvent event) {
         lightVal.setText(getString(R.string.illuminance, event.values[0]));
+        this.value = event.values[0];
         if(csvLight.isChecked()) {
             saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
