@@ -17,9 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class PressureFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -27,6 +31,9 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
     Spinner sampleFreqSpinnerAirPressure;
     TextView airPressureVal, tvAllDetailsAirPressure;
     Sensor sensorToBeListenedTo;
+    CheckBox csvPres;
+    String fileName = "PresFile.csv";
+
 
     @Nullable
     @Override
@@ -38,6 +45,9 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAirPressure.setAdapter(adapter);
+        csvPres= view.findViewById(R.id.csvBoxPres);
+        csvPres.setEnabled(true);
+        saveFile("Zeit"+"," + "Pressure"+"\n");
         return view;
     }
 
@@ -48,6 +58,7 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
         airPressureVal = getActivity().findViewById(R.id.valPressure);
         airPressureVal.setText(getString(R.string.ambient_air_pressureEmpty, "--"));
         sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+
         if(sensorToBeListenedTo != null){
             if(Build.VERSION.SDK_INT >= 24)
                 displaySensorDetailsWithStyle(sensorToBeListenedTo);
@@ -79,6 +90,10 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
     @Override
     public void onSensorChanged(SensorEvent event) {
         airPressureVal.setText(getString(R.string.ambient_air_pressure, event.values[0]));
+        if(csvPres.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -135,6 +150,39 @@ public class PressureFragment extends Fragment implements SensorEventListener, V
                 , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsAirPressure.setText(text);
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }

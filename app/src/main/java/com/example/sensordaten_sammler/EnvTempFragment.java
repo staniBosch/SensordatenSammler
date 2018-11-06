@@ -17,9 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class EnvTempFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
@@ -27,6 +31,8 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
     Spinner sampleFreqSpinnerTemp;
     TextView tempVal, tvAllDetailsTemp;
     Sensor sensorToBeListenedTo;
+    CheckBox csvEnv;
+    String fileName = "EnvFile.csv";
 
     @Nullable
     @Override
@@ -38,6 +44,11 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerTemp.setAdapter(adapter);
+        csvEnv = view.findViewById(R.id.csvBoxEnv);
+        csvEnv.setEnabled(true);
+        saveFile("Zeit"+"," + "Umgebungstemperatur" +"\n");
+
+
         return view;
     }
 
@@ -79,6 +90,10 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
     @Override
     public void onSensorChanged(SensorEvent event) {
         tempVal.setText(getString(R.string.ambient_temp, event.values[0]));
+        if(csvEnv.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -93,7 +108,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
                     // Success! The sensor exists on the device.
                     String buttonText = startStopBtnTemp.getText().toString();
-                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {  // Benutzer hat Start gedrückt
                         String sampleFreq = sampleFreqSpinnerTemp.getSelectedItem().toString();
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
@@ -105,7 +120,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
                         startStopBtnTemp.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtnTemp.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                    } else {
+                    } else {  // Benutzer hat Stop gedrückt
                         Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
                         MainActivity.sensorManager.unregisterListener(this, sensor);
                         startStopBtnTemp.setText(getResources().getString(R.string.start_listening_btn));
@@ -135,6 +150,39 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
                 , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsTemp.setText(text);
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }

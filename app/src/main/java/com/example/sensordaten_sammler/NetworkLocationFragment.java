@@ -20,9 +20,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class NetworkLocationFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -30,6 +34,8 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
     Button startStopBtnNetwork;
     EditText timeIntervMs, posChangeInM;
     TextView tvLat, tvLong, tvAlt;
+    CheckBox csvNetloc;
+    String fileName = "NetLocFile.csv";
 
     @Nullable
     @Override
@@ -39,6 +45,9 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
         startStopBtnNetwork.setOnClickListener(this);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeNetwork);
         posChangeInM = view.findViewById(R.id.minPosChangeNetwork);
+        csvNetloc = view.findViewById(R.id.csvBoxNetLoc);
+        csvNetloc.setEnabled(true);
+        saveFile("Zeit"+"," + "latitude" + "," + "longitude" + ","+ "altitude"+"\n");
         return view;
     }
 
@@ -67,7 +76,12 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                 tvLong.setText(getString(R.string.long_valNetwork, convertLongitude(longitude)));
                 tvAlt.setText(getString(R.string.alt_valNetwork, altitude));
             }
+            if(csvNetloc.isChecked()) {
+                saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLatitude(longitude) + "," + altitude+"\n");
+                //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+            }
         }
+
     }
 
     @Override
@@ -143,7 +157,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                             return;
                         }
                         String buttonText = startStopBtnNetwork.getText().toString();
-                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_network)) == 0) {
+                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_network)) == 0) {  // Benutzer hat Start gedrückt
                             startStopBtnNetwork.setText(getResources().getString(R.string.stop_listening_btn_network));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnNetwork.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -162,7 +176,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
                             }
-                        } else {
+                        } else {  // Benutzer hat Stop gedrückt
                             MainActivity.locationManager.removeUpdates(this);
                             startStopBtnNetwork.setText(getResources().getString(R.string.start_listening_btn_network));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
@@ -235,6 +249,39 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtnNetwork.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }

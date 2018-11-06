@@ -20,16 +20,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
-    Button startStopBtnGPS;
+    Button startStopBtnGPS ,svBtn;
     EditText timeIntervMs, posChangeInM;
     TextView tvLat, tvLong, tvAlt;
+    String fileName = "GPSFile.csv";
+    CheckBox csvGPS;
+
+    double latitude;
+    double longitude;
+    double altitude;
 
     @Nullable
     @Override
@@ -37,8 +59,12 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         View view = inflater.inflate(R.layout.fragment_gps, container, false);
         startStopBtnGPS = view.findViewById(R.id.bStartStopGPS);
         startStopBtnGPS.setOnClickListener(this);
+        svBtn = view.findViewById(R.id.svbtn);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeGPS);
         posChangeInM = view.findViewById(R.id.minPosChangeGPS);
+        csvGPS = view.findViewById(R.id.csvBoxGps);
+        csvGPS.setEnabled(true);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe"+"\n");
         return view;
     }
 
@@ -51,21 +77,31 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
         tvLat.setText(getString(R.string.lat_valGPSEmpty, "--"));
         tvLong.setText(getString(R.string.long_valGPSEmpty, "--"));
         tvAlt.setText(getString(R.string.alt_valGPSEmpty, "--"));
+        svBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               sendDataRest(latitude, longitude,altitude);
+            }
+        });
     }
 
     @Override
     public void onLocationChanged(Location location) {
         Log.d("test", "in onLocationChanged");
         if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            double altitude = location.getAltitude();
+            this.latitude = location.getLatitude();
+            this.longitude = location.getLongitude();
+            this.altitude = location.getAltitude();
 
             Activity activity = getActivity();
             if (isAdded() && activity != null) {
                 tvLat.setText(getString(R.string.lat_valGPS, convertLatitude(latitude)));
                 tvLong.setText(getString(R.string.long_valGPS, convertLongitude(longitude)));
                 tvAlt.setText(getString(R.string.alt_valGPS, altitude));
+                if(csvGPS.isChecked()) {
+                    saveFile(System.currentTimeMillis()+"," + convertLatitude(latitude) + "," + convertLongitude(longitude) + "," + altitude+"\n");
+                    //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -144,7 +180,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                             return;
                         }
                         String buttonText = startStopBtnGPS.getText().toString();
-                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_gps)) == 0) {
+                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_gps)) == 0) {  // Benutzer hat Start gedrückt
                             startStopBtnGPS.setText(getResources().getString(R.string.stop_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -163,7 +199,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
                             }
-                        } else {
+                        } else {  // Benutzer hat Stop gedrückt
                             MainActivity.locationManager.removeUpdates(this);
                             startStopBtnGPS.setText(getResources().getString(R.string.start_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
@@ -236,6 +272,56 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
+    }
+
+    private void sendDataRest(double ... params){
+        JSONObject gpsData = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        try{
+            gpsData.put("Latitude", params[0]);
+            gpsData.put("Longitude", params[1]);
+            gpsData.put("Hoehe", params[2]);
+            gpsData.put("session_id", Session.getID());
+            jsonArray.put(gpsData);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("gps",jsonArray.toString());
+        Log.d("RESTAPI",gpsData.toString());
     }
 
 }

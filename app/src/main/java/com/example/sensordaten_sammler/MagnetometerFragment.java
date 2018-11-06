@@ -18,18 +18,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Array;
 
 public class MagnetometerFragment extends Fragment implements SensorEventListener, View.OnClickListener {
 
     Button startStopBtnMagnetom;
     Spinner sampleFreqSpinnerMagnetom;
+    CheckBox csvMag;
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsMagnetom;
     Sensor sensorToBeListenedTo;
+    String fileName = "MagFile.csv";
 
     @Nullable
     @Override
@@ -41,6 +46,9 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerMagnetom.setAdapter(adapter);
+        csvMag = view.findViewById(R.id.csvBoxMag);
+        csvMag.setEnabled(true);
+        saveFile("Zeit"+"," + "µT" + "," + "µT" + "\n");
         return view;
     }
 
@@ -88,6 +96,10 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         tvXVal.setText(getString(R.string.x_valMagnetom, event.values[0]));
         tvYVal.setText(getString(R.string.y_valMagnetom, event.values[1]));
         tvZVal.setText(getString(R.string.z_valMagnetom, event.values[2]));
+        if(csvMag.isChecked()) {
+            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "\n");
+            //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -144,6 +156,39 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                 , sensorToBeListenedTo.getVendor(), sensorToBeListenedTo.getVersion(), sensorToBeListenedTo.getPower(),
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsMagnetom.setText(text);
+    }
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            fos.write(text.getBytes());
+            fos.close();
+            //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+    public String readFile(String file)
+    {
+        String text ="";
+
+        try {
+            FileInputStream fis = getActivity().openFileInput(file);
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            text = new String(buffer);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return text;
     }
 
 }
