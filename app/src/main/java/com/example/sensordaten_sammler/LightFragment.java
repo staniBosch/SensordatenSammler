@@ -1,6 +1,7 @@
 package com.example.sensordaten_sammler;
 
 import android.annotation.TargetApi;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,6 +24,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Array;
@@ -35,6 +42,9 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     Sensor sensorToBeListenedTo;
     String fileName = "LightFile.csv";
     CheckBox csvLight;
+    GraphView graphAcc3;
+    LineGraphSeries<DataPoint> seriesX;
+    double graphLastXValTime;
 
     @Nullable
     @Override
@@ -64,6 +74,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
                 displaySensorDetailsWithStyle(sensorToBeListenedTo);
             else
                 displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
+            setUpGraphView();
         }
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Sensor zur Messung der Beleuchtungsstärke!", Toast.LENGTH_SHORT).show();
@@ -74,6 +85,36 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     public void onResume() {
         super.onResume();
     }
+
+
+
+
+    private void setUpGraphView(){
+        graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphAcc3);
+        graphAcc3.getViewport().setYAxisBoundsManual(true);
+        graphAcc3.getViewport().setMinY(0);
+        graphAcc3.getViewport().setMaxY(300);
+        graphAcc3.getViewport().setMinX(0);
+        graphAcc3.getViewport().setMaxX(50);
+        graphAcc3.getViewport().setXAxisBoundsManual(true);
+        graphAcc3.getLegendRenderer().setVisible(true);
+        graphAcc3.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphAcc3.getLegendRenderer().setPadding(5);
+        graphAcc3.getLegendRenderer().setTextSize(25);
+        graphAcc3.getLegendRenderer().setMargin(30);
+        graphAcc3.getGridLabelRenderer().setVerticalAxisTitle("lx");
+        graphAcc3.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphAcc3.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX = new LineGraphSeries<DataPoint>();
+        seriesX.setColor(Color.BLUE);
+        seriesX.setTitle("X");
+        graphAcc3.addSeries(seriesX);
+    }
+
+
+
+
+
 
     @Override
     public void onPause() {
@@ -94,6 +135,8 @@ public class LightFragment extends Fragment implements SensorEventListener, View
             saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
+        seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        graphLastXValTime++;
 
     }
 

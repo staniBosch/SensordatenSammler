@@ -61,8 +61,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc, tvCsvContent;
     Sensor sensorToBeListenedTo;
     GraphView graphAcc;
+    GraphView graphAcc2;
     CheckBox csvAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    LineGraphSeries<DataPoint> seriesX2, seriesY2, seriesZ2;
     Switch saveswitch;
     double graphLastXValTime;
     double x1,y1,z1;
@@ -107,6 +109,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
             else
                 displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
             setUpGraphView();
+            setUpGraphView2();
         }
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
@@ -171,6 +174,41 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesZ.setTitle("Z");
         graphAcc.addSeries(seriesZ);
     }
+
+    private void setUpGraphView2(){
+        graphAcc2 = (GraphView) getActivity().findViewById(R.id.graphAcc2);
+        graphAcc2.getViewport().setYAxisBoundsManual(true);
+        graphAcc2.getViewport().setMinY(-1 * sensorToBeListenedTo.getMaximumRange());
+        graphAcc2.getViewport().setMaxY(sensorToBeListenedTo.getMaximumRange());
+        graphAcc2.getViewport().setMinX(0);
+        graphAcc2.getViewport().setMaxX(1000);
+        graphAcc2.getViewport().setXAxisBoundsManual(true);
+        graphAcc2.getLegendRenderer().setVisible(true);
+        graphAcc2.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphAcc2.getLegendRenderer().setPadding(5);
+        graphAcc2.getLegendRenderer().setTextSize(25);
+        graphAcc2.getLegendRenderer().setMargin(30);
+        graphAcc2.getGridLabelRenderer().setVerticalAxisTitle("m/s²");
+        graphAcc2.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphAcc2.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX2 = new LineGraphSeries<DataPoint>();
+        seriesX2.setColor(Color.BLUE);
+        seriesX2.setTitle("X");
+        graphAcc2.addSeries(seriesX2);
+        seriesY2 = new LineGraphSeries<DataPoint>();
+        seriesY2.setColor(Color.GREEN);
+        seriesY2.setTitle("Y");
+        graphAcc2.addSeries(seriesY2);
+        seriesZ2 = new LineGraphSeries<DataPoint>();
+        seriesZ2.setColor(Color.RED);
+        seriesZ2.setTitle("Z");
+        graphAcc2.addSeries(seriesZ2);
+    }
+
+
+
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -196,6 +234,9 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
         seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
+        seriesX2.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        seriesY2.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
+        seriesZ2.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
         if(csvAcc.isChecked()) {
             saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2]+"\n", true);
@@ -259,8 +300,12 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                            graphAcc.setVisibility(View.VISIBLE);
+                            graphAcc2.setVisibility(View.INVISIBLE);
                         } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+                            graphAcc.setVisibility(View.INVISIBLE);
+                            graphAcc2.setVisibility(View.VISIBLE);
                         }
                         if(csvAcc.isChecked())
                             saveFile("Zeit"+"               " + "X-Achse" + "           " + "Y-Achse" + "         "+ "Z-Achse"+"\n", false);
