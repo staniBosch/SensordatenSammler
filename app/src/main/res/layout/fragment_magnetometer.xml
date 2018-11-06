@@ -92,5 +92,28 @@
             android:text="@string/save_btn"
             android:textSize="20sp" />
 
+        <com.jjoe64.graphview.GraphView
+            android:layout_width="match_parent"
+            android:layout_height="200dip"
+            android:id="@+id/graphMagn"
+            android:layout_below="@+id/detailsMagnetom"
+            android:layout_marginTop="10sp" />
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graphMagn2"
+            android:layout_width="match_parent"
+            android:layout_height="200dip"
+            android:layout_below="@+id/detailsMagnetom"
+            android:layout_marginTop="10sp" />
+
+        <TextView
+            android:id="@+id/tvSavedCsvFileMagn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/graphMagn"
+            android:padding="10sp"
+            android:textSize="10sp"
+            android:layout_marginTop="10sp" />
+
     </RelativeLayout>
 </ScrollView>

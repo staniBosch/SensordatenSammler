@@ -1,6 +1,7 @@
 package com.example.sensordaten_sammler;
 
 import android.annotation.TargetApi;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -25,6 +26,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,12 +46,16 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
     Button startStopBtnMagnetom;
     Spinner sampleFreqSpinnerMagnetom;
     CheckBox csvMag;
-    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsMagnetom;
+    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsMagnetom, tvCsvContent;
     Sensor sensorToBeListenedTo;
     String fileName = "MagFile.csv";
     Switch saveswitch;
     double x1,y1,z1;
     Timer timer = new Timer();
+    GraphView graphMagn, graphMagn2;
+    LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    LineGraphSeries<DataPoint> seriesX2, seriesY2, seriesZ2;
+    double graphLastXValTime;
 
     @Nullable
     @Override
@@ -58,7 +69,6 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         sampleFreqSpinnerMagnetom.setAdapter(adapter);
         csvMag = view.findViewById(R.id.csvBoxMag);
         csvMag.setEnabled(true);
-        saveFile("Zeit"+"," + "µT" + "," + "µT" + "\n");
         saveswitch = view.findViewById(R.id.switchsvmagn);
         return view;
     }
@@ -67,6 +77,7 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvAllDetailsMagnetom = getActivity().findViewById(R.id.detailsMagnetom);
+        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFileMagn);
         tvXVal = getActivity().findViewById(R.id.xValueMagnetom);
         tvYVal = getActivity().findViewById(R.id.yValueMagnetom);
         tvZVal = getActivity().findViewById(R.id.zValueMagnetom);
@@ -79,6 +90,8 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                 displaySensorDetailsWithStyle(sensorToBeListenedTo);
             else
                 displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
+            setUpGraphView();
+            setUpGraphView2();
         }
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Magnetometer!", Toast.LENGTH_SHORT).show();
@@ -135,13 +148,80 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         tvXVal.setText(getString(R.string.x_valMagnetom, event.values[0]));
         tvYVal.setText(getString(R.string.y_valMagnetom, event.values[1]));
         tvZVal.setText(getString(R.string.z_valMagnetom, event.values[2]));
+        seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
+        seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
+        seriesX2.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        seriesY2.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
+        seriesZ2.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
+        graphLastXValTime++;
         if(csvMag.isChecked()) {
-            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "\n");
+            saveFile(event.timestamp / 1000000 + " :  " + "x: " + event.values[0] + "        y: " + event.values[1] + "        z: " + event.values[2]+"\n", true);
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
         x1 = event.values[0];
         y1 = event.values[1];
         z1 = event.values[2];
+    }
+
+    private void setUpGraphView(){
+        graphMagn = (GraphView) getActivity().findViewById(R.id.graphMagn);
+        graphMagn.getViewport().setYAxisBoundsManual(true);
+        graphMagn.getViewport().setMinY(-1 * sensorToBeListenedTo.getMaximumRange());
+        graphMagn.getViewport().setMaxY(sensorToBeListenedTo.getMaximumRange());
+        graphMagn.getViewport().setMinX(0);
+        graphMagn.getViewport().setMaxX(100);
+        graphMagn.getViewport().setXAxisBoundsManual(true);
+        graphMagn.getLegendRenderer().setVisible(true);
+        graphMagn.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphMagn.getLegendRenderer().setPadding(5);
+        graphMagn.getLegendRenderer().setTextSize(25);
+        graphMagn.getLegendRenderer().setMargin(30);
+        graphMagn.getGridLabelRenderer().setVerticalAxisTitle("µT");
+        graphMagn.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphMagn.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX = new LineGraphSeries<DataPoint>();
+        seriesX.setColor(Color.BLUE);
+        seriesX.setTitle("X");
+        graphMagn.addSeries(seriesX);
+        seriesY = new LineGraphSeries<DataPoint>();
+        seriesY.setColor(Color.GREEN);
+        seriesY.setTitle("Y");
+        graphMagn.addSeries(seriesY);
+        seriesZ = new LineGraphSeries<DataPoint>();
+        seriesZ.setColor(Color.RED);
+        seriesZ.setTitle("Z");
+        graphMagn.addSeries(seriesZ);
+    }
+
+    private void setUpGraphView2(){
+        graphMagn2 = (GraphView) getActivity().findViewById(R.id.graphMagn2);
+        graphMagn2.getViewport().setYAxisBoundsManual(true);
+        graphMagn2.getViewport().setMinY(-1 * sensorToBeListenedTo.getMaximumRange());
+        graphMagn2.getViewport().setMaxY(sensorToBeListenedTo.getMaximumRange());
+        graphMagn2.getViewport().setMinX(0);
+        graphMagn2.getViewport().setMaxX(1000);
+        graphMagn2.getViewport().setXAxisBoundsManual(true);
+        graphMagn2.getLegendRenderer().setVisible(true);
+        graphMagn2.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphMagn2.getLegendRenderer().setPadding(5);
+        graphMagn2.getLegendRenderer().setTextSize(25);
+        graphMagn2.getLegendRenderer().setMargin(30);
+        graphMagn2.getGridLabelRenderer().setVerticalAxisTitle("µT");
+        graphMagn2.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphMagn2.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX2 = new LineGraphSeries<DataPoint>();
+        seriesX2.setColor(Color.BLUE);
+        seriesX2.setTitle("X");
+        graphMagn2.addSeries(seriesX2);
+        seriesY2 = new LineGraphSeries<DataPoint>();
+        seriesY2.setColor(Color.GREEN);
+        seriesY2.setTitle("Y");
+        graphMagn2.addSeries(seriesY2);
+        seriesZ2 = new LineGraphSeries<DataPoint>();
+        seriesZ2.setColor(Color.RED);
+        seriesZ2.setTitle("Z");
+        graphMagn2.addSeries(seriesZ2);
     }
 
     @Override
@@ -161,9 +241,15 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                            graphMagn.setVisibility(View.VISIBLE);
+                            graphMagn2.setVisibility(View.INVISIBLE);
                         } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+                            graphMagn.setVisibility(View.INVISIBLE);
+                            graphMagn2.setVisibility(View.VISIBLE);
                         }
+                        if(csvMag.isChecked())
+                            saveFile("Zeit"+"                 " + "X-Achse in µT" + "       " + "Y-Achse in µT" + "     "+ "Z-Achse in µT\n", false);
                         MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                         startStopBtnMagnetom.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
@@ -174,6 +260,11 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                         startStopBtnMagnetom.setText(getResources().getString(R.string.start_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnMagnetom.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        saveswitch.setChecked(false);
+                        if(csvMag.isChecked()) {
+                            Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
+                            tvCsvContent.setText(getFileContent(fileName));
+                        }
                     }
                 } else {
                     // Failure! Sensor not found on device.
@@ -199,11 +290,15 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsMagnetom.setText(text);
     }
-    public void saveFile(String text)
+    public void saveFile(String text, boolean append)
     {
+        FileOutputStream fos = null;
 
         try {
-            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            if(append)
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            else
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -213,10 +308,10 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
         }
 
     }
-    public String readFile(String file)
-    {
-        String text ="";
 
+    public String getFileContent(String file)
+    {
+        String text = "";
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();

@@ -129,7 +129,7 @@ public class CompassFragment extends Fragment implements SensorEventListener, Vi
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree = Math.round(event.values[0]);
-        String ausgabe = "Grad:"+ (int) degree;
+        String ausgabe = "Grad: "+ (int) degree + "°";
 
         compassVal.setText(ausgabe);
        if(csvCompass.isChecked()) {

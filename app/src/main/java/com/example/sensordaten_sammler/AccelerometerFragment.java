@@ -60,8 +60,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     Spinner sampleFreqSpinnerAcc;
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc, tvCsvContent;
     Sensor sensorToBeListenedTo;
-    GraphView graphAcc;
-    GraphView graphAcc2;
+    GraphView graphAcc, graphAcc2;
     CheckBox csvAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
     LineGraphSeries<DataPoint> seriesX2, seriesY2, seriesZ2;
@@ -70,8 +69,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     double x1,y1,z1;
     Timer timer = new Timer();
     private static final String fileName = "ACCFile.csv";
-
-//    long startTime;
 
     @Nullable
     @Override
@@ -85,8 +82,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
-        //startTime = System.nanoTime() / 10000000;
-//        startTime = System.nanoTime() / 10000000;
         saveswitch = view.findViewById(R.id.switchsv_ac);
         return view;
     }
@@ -95,7 +90,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvAllDetailsAcc = getActivity().findViewById(R.id.detailsAcc);
-        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFile);
+        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFileAcc);
         tvXVal = getActivity().findViewById(R.id.xValueAcc);
         tvYVal = getActivity().findViewById(R.id.yValueAcc);
         tvZVal = getActivity().findViewById(R.id.zValueAcc);
@@ -206,9 +201,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     }
 
 
-
-
-
     @Override
     public void onResume() {
         super.onResume();
@@ -239,7 +231,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesZ2.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
         if(csvAcc.isChecked()) {
-            saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2]+"\n", true);
+            saveFile(event.timestamp / 1000000 + " :  " + "x: " + event.values[0] + "           y: " + event.values[1] + "           z: " + event.values[2]+"\n", true);
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
 
@@ -288,6 +280,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
         return text;
     }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -308,7 +301,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                             graphAcc2.setVisibility(View.VISIBLE);
                         }
                         if(csvAcc.isChecked())
-                            saveFile("Zeit"+"               " + "X-Achse" + "           " + "Y-Achse" + "         "+ "Z-Achse"+"\n", false);
+                            saveFile("Zeit"+"                  " + "X-Achse in m/s²" + "        " + "Y-Achse in m/s²" + "      "+ "Z-Achse in m/s²\n", false);
                         MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                         startStopBtnAcc.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);

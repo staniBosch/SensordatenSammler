@@ -11,16 +11,10 @@
         android:orientation="vertical">
 
         <com.jjoe64.graphview.GraphView
-            android:id="@+id/graphAcc3"
+            android:id="@+id/graphLight"
             android:layout_width="match_parent"
             android:layout_height="200dip"
-            android:layout_below="@id/detailsLight"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginBottom="11dp" />
+            android:layout_below="@id/detailsLight" />
 
         <Switch
             android:id="@+id/switchsvlicht"
@@ -86,5 +80,14 @@
             android:text="@string/local_storage_checkbox"
             android:textSize="20sp"
             android:padding="10sp" />
+
+        <TextView
+            android:id="@+id/tvSavedCsvFileLight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/graphLight"
+            android:padding="10sp"
+            android:textSize="10sp"
+            android:layout_marginTop="10sp" />
     </RelativeLayout>
 </ScrollView>

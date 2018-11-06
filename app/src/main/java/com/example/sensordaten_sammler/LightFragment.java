@@ -38,7 +38,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
 
     Button startStopBtnLight;
     Spinner sampleFreqSpinnerLight;
-    TextView lightVal, tvAllDetailsLight;
+    TextView lightVal, tvAllDetailsLight, tvCsvContent;
     Sensor sensorToBeListenedTo;
     String fileName = "LightFile.csv";
     CheckBox csvLight;
@@ -58,7 +58,6 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         sampleFreqSpinnerLight.setAdapter(adapter);
         csvLight = view.findViewById(R.id.csvBoxLight);
         csvLight.setEnabled(true);
-        saveFile("Zeit"+"," + "Light" +"\n");
         return view;
     }
 
@@ -66,6 +65,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvAllDetailsLight = getActivity().findViewById(R.id.detailsLight);
+        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFileLight);
         lightVal = getActivity().findViewById(R.id.valLight);
         lightVal.setText(getString(R.string.illuminanceEmpty, "--"));
         sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -90,7 +90,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
 
 
     private void setUpGraphView(){
-        graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphAcc3);
+        graphAcc3 = (GraphView) getActivity().findViewById(R.id.graphLight);
         graphAcc3.getViewport().setYAxisBoundsManual(true);
         graphAcc3.getViewport().setMinY(0);
         graphAcc3.getViewport().setMaxY(3000);
@@ -112,10 +112,6 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     }
 
 
-
-
-
-
     @Override
     public void onPause() {
         super.onPause();
@@ -132,7 +128,7 @@ public class LightFragment extends Fragment implements SensorEventListener, View
     public void onSensorChanged(SensorEvent event) {
         lightVal.setText(getString(R.string.illuminance, event.values[0]));
         if(csvLight.isChecked()) {
-            saveFile(System.currentTimeMillis()+"," + event.values[0] +"\n");
+            saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + "\n", true);
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
         seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
@@ -160,6 +156,8 @@ public class LightFragment extends Fragment implements SensorEventListener, View
                         } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
                         }
+                        if(csvLight.isChecked())
+                            saveFile("Zeit"+"                 " + "X-Achse in lx\n", false);
                         MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                         startStopBtnLight.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
@@ -170,6 +168,10 @@ public class LightFragment extends Fragment implements SensorEventListener, View
                         startStopBtnLight.setText(getResources().getString(R.string.start_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnLight.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        if(csvLight.isChecked()) {
+                            Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
+                            tvCsvContent.setText(getFileContent(fileName));
+                        }
                     }
                 } else {
                     // Failure! Sensor not found on device.
@@ -195,11 +197,16 @@ public class LightFragment extends Fragment implements SensorEventListener, View
                 sensorToBeListenedTo.getResolution(), sensorToBeListenedTo.getMaximumRange());
         tvAllDetailsLight.setText(text);
     }
-    public void saveFile(String text)
+
+    public void saveFile(String text, boolean append)
     {
+        FileOutputStream fos = null;
 
         try {
-            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            if(append)
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            else
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -209,10 +216,10 @@ public class LightFragment extends Fragment implements SensorEventListener, View
         }
 
     }
-    public String readFile(String file)
-    {
-        String text ="";
 
+    public String getFileContent(String file)
+    {
+        String text = "";
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();
