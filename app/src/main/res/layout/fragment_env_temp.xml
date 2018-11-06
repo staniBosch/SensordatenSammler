@@ -10,7 +10,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-            <TextView
+        <Switch
+            android:id="@+id/switchsvenvt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxEnv"
+            android:layout_marginTop="0dp"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
+        <TextView
                 android:id="@+id/spinnerLabelTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -30,9 +40,9 @@
             android:id="@+id/bStartStopTemp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/csvBoxEnv"
-            android:drawableLeft="@drawable/ic_play_arrow"
+            android:layout_below="@+id/switchsvenvt"
             android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
