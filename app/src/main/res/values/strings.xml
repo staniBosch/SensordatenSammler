@@ -102,5 +102,6 @@
     <string name="details_textfield_proximity_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f cm\nMax-Bereich: %6$f cm</string>
     <string name="details_textfield_step_counter_withStyle">&lt;b>&lt;font size="25">Details:&lt;/font>&lt;/b>&lt;br>Name: %1$s&lt;br>Hersteller: %2$s&lt;br>Version: %3$d&lt;br>Power: %4$f mA&lt;br>Auflösung: %5$f &lt;br>Max-Bereich: %6$f</string>
     <string name="details_textfield_step_counter_withoutStyle">Details:\nName: %1$s\nHersteller: %2$s\nVersion: %3$d\nPower: %4$f mA\nAuflösung: %5$f\nMax-Bereich: %6$f</string>
-    <string name="save_btn">Save</string>
+    <string name="save_btn">Speichern off-phone</string>
+    <string name="local_storage_checkbox">Speichern lokal als CSV-Datei</string>
 </resources>

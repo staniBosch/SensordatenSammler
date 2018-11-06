@@ -45,7 +45,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
         startStopBtnNetwork.setOnClickListener(this);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeNetwork);
         posChangeInM = view.findViewById(R.id.minPosChangeNetwork);
-        csvNetloc = view.findViewById(R.id.csvBoxNetloc);
+        csvNetloc = view.findViewById(R.id.csvBoxNetLoc);
         csvNetloc.setEnabled(true);
         saveFile("Zeit"+"," + "latitude" + "," + "longitude" + ","+ "altitude"+"\n");
         return view;
@@ -157,7 +157,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                             return;
                         }
                         String buttonText = startStopBtnNetwork.getText().toString();
-                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_network)) == 0) {
+                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_network)) == 0) {  // Benutzer hat Start gedrückt
                             startStopBtnNetwork.setText(getResources().getString(R.string.stop_listening_btn_network));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnNetwork.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -176,7 +176,7 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
                             }
-                        } else {
+                        } else {  // Benutzer hat Stop gedrückt
                             MainActivity.locationManager.removeUpdates(this);
                             startStopBtnNetwork.setText(getResources().getString(R.string.start_listening_btn_network));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);

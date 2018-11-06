@@ -58,7 +58,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     Button startStopBtnAcc;
     Spinner sampleFreqSpinnerAcc;
-    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc;
+    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc, tvCsvContent;
     Sensor sensorToBeListenedTo;
     GraphView graphAcc;
     CheckBox csvAcc;
@@ -67,7 +67,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     double graphLastXValTime;
     double x1,y1,z1;
     Timer timer = new Timer();
-    String fileName = "ACCFile.csv";
+    private static final String fileName = "ACCFile.csv";
 
 //    long startTime;
 
@@ -83,7 +83,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
-        saveFile("Zeit"+"," + "X-Achse" + "," + "Y-Achse" + ","+ "Z-Achse"+"\n");
         //startTime = System.nanoTime() / 10000000;
 //        startTime = System.nanoTime() / 10000000;
         saveswitch = view.findViewById(R.id.switchsv_ac);
@@ -94,6 +93,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvAllDetailsAcc = getActivity().findViewById(R.id.detailsAcc);
+        tvCsvContent = getActivity().findViewById(R.id.tvSavedCsvFile);
         tvXVal = getActivity().findViewById(R.id.xValueAcc);
         tvYVal = getActivity().findViewById(R.id.yValueAcc);
         tvZVal = getActivity().findViewById(R.id.zValueAcc);
@@ -198,7 +198,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
         if(csvAcc.isChecked()) {
-            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n");
+            saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2]+"\n", true);
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
 
@@ -211,11 +211,15 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-    public void saveFile(String text)
+    public void saveFile(String text, boolean append)
     {
+        FileOutputStream fos = null;
 
         try {
-            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            if(append)
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+            else
+                fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -225,10 +229,9 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     }
 
     }
-    public String readFile(String file)
+    public String getFileContent(String file)
     {
-        String text ="";
-
+        String text = "";
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();
@@ -251,7 +254,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
                     // Success! The sensor exists on the device.
                     String buttonText = startStopBtnAcc.getText().toString();
-                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {  // Benutzer hat Start gedrückt
                         String sampleFreq = sampleFreqSpinnerAcc.getSelectedItem().toString();
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
@@ -259,17 +262,23 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
                         }
+                        if(csvAcc.isChecked())
+                            saveFile("Zeit"+"               " + "X-Achse" + "           " + "Y-Achse" + "         "+ "Z-Achse"+"\n", false);
                         MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, sensorDelay);
                         startStopBtnAcc.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                    } else {
+                    } else {  // Benutzer hat Stop gedrückt
                         Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
                         MainActivity.sensorManager.unregisterListener(this, sensor);
                         startStopBtnAcc.setText(getResources().getString(R.string.start_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         saveswitch.setChecked(false);
+                        if(csvAcc.isChecked()) {
+                            Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
+                            tvCsvContent.setText(getFileContent(fileName));
+                        }
                     }
                 } else {
                     // Failure! Sensor not found on device.

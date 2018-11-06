@@ -10,7 +10,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-            <TextView
+        <Switch
+            android:id="@+id/switchsvhumi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxHum"
+            android:layout_marginTop="0dp"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
+        <TextView
                 android:id="@+id/spinnerLabelHumidity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -30,9 +40,9 @@
             android:id="@+id/bStartStopHumidity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/spinnerLabelHumidity"
-            android:drawableLeft="@drawable/ic_play_arrow"
+            android:layout_below="@+id/switchsvhumi"
             android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
@@ -57,12 +67,9 @@
             android:id="@+id/csvBoxHum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="103dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginRight="11dp"
-            android:text="Speichern .csv" />
+            android:layout_below="@id/spinnerLabelHumidity"
+            android:text="@string/local_storage_checkbox"
+            android:textSize="20sp"
+            android:padding="10sp" />
     </RelativeLayout>
 </ScrollView>

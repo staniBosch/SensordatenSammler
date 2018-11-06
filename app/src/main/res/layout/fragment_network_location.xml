@@ -11,6 +11,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <Switch
+            android:id="@+id/switchsvnetw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxNetLoc"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
         <EditText
             android:id="@+id/minIntervallTimeNetwork"
             android:layout_width="match_parent"
@@ -38,12 +47,13 @@
             android:id="@+id/bStartStopNetwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/minPosChangeNetwork"
-            android:drawableLeft="@drawable/ic_play_arrow"
+            android:layout_below="@+id/switchsvnetw"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn_network"
-            android:textSize="15sp"
-            android:layout_marginTop="10sp"/>
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/latValueNetwork"
@@ -70,15 +80,13 @@
             android:textSize="20sp" />
 
         <CheckBox
-            android:id="@+id/csvBoxNetloc"
+            android:id="@+id/csvBoxNetLoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="184dp"
-            android:layout_marginEnd="21dp"
-            android:layout_marginRight="21dp"
-            android:text="Speichern .csv" />
+            android:layout_below="@id/minPosChangeNetwork"
+            android:text="@string/local_storage_checkbox"
+            android:textSize="20sp"
+            android:padding="10sp" />
+
     </RelativeLayout>
 </ScrollView>

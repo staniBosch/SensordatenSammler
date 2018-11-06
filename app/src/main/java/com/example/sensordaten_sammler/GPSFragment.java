@@ -180,7 +180,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                             return;
                         }
                         String buttonText = startStopBtnGPS.getText().toString();
-                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_gps)) == 0) {
+                        if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_gps)) == 0) {  // Benutzer hat Start gedrückt
                             startStopBtnGPS.setText(getResources().getString(R.string.stop_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                             startStopBtnGPS.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -199,7 +199,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
                                 if (tvAlt != null)
                                     tvAlt.setText(getString(R.string.alt_valGPS, altitude));
                             }
-                        } else {
+                        } else {  // Benutzer hat Stop gedrückt
                             MainActivity.locationManager.removeUpdates(this);
                             startStopBtnGPS.setText(getResources().getString(R.string.start_listening_btn_gps));
                             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);

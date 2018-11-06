@@ -10,7 +10,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-            <TextView
+        <Switch
+            android:id="@+id/switchsvpressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxPres"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
+        <TextView
                 android:id="@+id/spinnerLabelPressure"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -30,9 +39,9 @@
             android:id="@+id/bStartStopPressure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/spinnerLabelPressure"
-            android:drawableLeft="@drawable/ic_play_arrow"
+            android:layout_below="@+id/switchsvpressure"
             android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
@@ -57,12 +66,10 @@
             android:id="@+id/csvBoxPres"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="143dp"
-            android:layout_marginEnd="13dp"
-            android:layout_marginRight="11dp"
-            android:text="Speichern .csv" />
+            android:layout_below="@id/spinnerLabelPressure"
+            android:text="@string/local_storage_checkbox"
+            android:textSize="20sp"
+            android:padding="10sp" />
+
     </RelativeLayout>
 </ScrollView>

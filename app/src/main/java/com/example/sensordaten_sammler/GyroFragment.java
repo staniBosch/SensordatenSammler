@@ -124,7 +124,7 @@ public class GyroFragment extends Fragment implements SensorEventListener, View.
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
                     // Success! The sensor exists on the device.
                     String buttonText = startStopBtnGyro.getText().toString();
-                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {  // Benutzer hat Start gedrückt
                         String sampleFreq = sampleFreqSpinnerGyro.getSelectedItem().toString();
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
@@ -136,7 +136,7 @@ public class GyroFragment extends Fragment implements SensorEventListener, View.
                         startStopBtnGyro.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtnGyro.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                    } else {
+                    } else {  // Benutzer hat Stop gedrückt
                         Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
                         MainActivity.sensorManager.unregisterListener(this, sensor);
                         startStopBtnGyro.setText(getResources().getString(R.string.start_listening_btn));

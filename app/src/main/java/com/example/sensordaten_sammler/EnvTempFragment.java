@@ -108,7 +108,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
                 if (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
                     // Success! The sensor exists on the device.
                     String buttonText = startStopBtnTemp.getText().toString();
-                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn)) == 0) {  // Benutzer hat Start gedrückt
                         String sampleFreq = sampleFreqSpinnerTemp.getSelectedItem().toString();
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
@@ -120,7 +120,7 @@ public class EnvTempFragment extends Fragment implements SensorEventListener, Vi
                         startStopBtnTemp.setText(getResources().getString(R.string.stop_listening_btn));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtnTemp.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                    } else {
+                    } else {  // Benutzer hat Stop gedrückt
                         Sensor sensor = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
                         MainActivity.sensorManager.unregisterListener(this, sensor);
                         startStopBtnTemp.setText(getResources().getString(R.string.start_listening_btn));

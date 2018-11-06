@@ -30,7 +30,7 @@
             android:id="@+id/bStartStopProximity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/spinnerLabelProximity"
+            android:layout_below="@+id/csvBoxProx"
             android:drawableLeft="@drawable/ic_play_arrow"
             android:drawableStart="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
@@ -57,12 +57,9 @@
             android:id="@+id/csvBoxProx"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="113dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Speichern .csv" />
+            android:layout_below="@id/spinnerLabelProximity"
+            android:text="@string/local_storage_checkbox"
+            android:textSize="20sp"
+            android:padding="10sp" />
     </RelativeLayout>
 </ScrollView>
