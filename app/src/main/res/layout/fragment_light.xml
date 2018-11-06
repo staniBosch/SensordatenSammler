@@ -10,6 +10,27 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graphAcc3"
+            android:layout_width="match_parent"
+            android:layout_height="200dip"
+            android:layout_below="@id/detailsLight"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginBottom="11dp" />
+
+        <Switch
+            android:id="@+id/switchsvlicht"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/csvBoxLight"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:padding="10sp"
+            android:text="@string/save_btn"
+            android:textSize="20sp" />
+
         <TextView
             android:id="@+id/spinnerLabelLight"
             android:layout_width="wrap_content"
@@ -30,9 +51,11 @@
             android:id="@+id/bStartStopLight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/csvBoxLight"
-            android:drawableLeft="@drawable/ic_play_arrow"
+            android:layout_below="@+id/switchsvlicht"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:drawableStart="@drawable/ic_play_arrow"
+            android:drawableLeft="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn"
             android:textSize="20sp" />
 
@@ -57,19 +80,9 @@
             android:id="@+id/csvBoxLight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
             android:layout_below="@id/spinnerLabelLight"
             android:text="@string/local_storage_checkbox"
             android:textSize="20sp"
             android:padding="10sp" />
-=======
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="143dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginRight="11dp"
-            android:text="Speichern .csv" />
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
     </RelativeLayout>
 </ScrollView>

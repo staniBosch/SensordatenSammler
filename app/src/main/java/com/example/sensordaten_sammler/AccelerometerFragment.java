@@ -61,17 +61,15 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc, tvCsvContent;
     Sensor sensorToBeListenedTo;
     GraphView graphAcc;
+    GraphView graphAcc2;
     CheckBox csvAcc;
     LineGraphSeries<DataPoint> seriesX, seriesY, seriesZ;
+    LineGraphSeries<DataPoint> seriesX2, seriesY2, seriesZ2;
     Switch saveswitch;
     double graphLastXValTime;
     double x1,y1,z1;
     Timer timer = new Timer();
-<<<<<<< HEAD
     private static final String fileName = "ACCFile.csv";
-=======
-    String fileName = "ACCFile.csv";
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
 
 //    long startTime;
 
@@ -87,10 +85,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
-<<<<<<< HEAD
-=======
-        saveFile("Zeit"+"," + "X-Achse" + "," + "Y-Achse" + ","+ "Z-Achse"+"\n");
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
         //startTime = System.nanoTime() / 10000000;
 //        startTime = System.nanoTime() / 10000000;
         saveswitch = view.findViewById(R.id.switchsv_ac);
@@ -115,6 +109,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
             else
                 displaySensorDetailsWithoutStyle(sensorToBeListenedTo);
             setUpGraphView();
+            setUpGraphView2();
         }
         else{
             Toast.makeText(getActivity(), "Dein Gerät besitzt kein Accelerometer!", Toast.LENGTH_SHORT).show();
@@ -179,6 +174,41 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesZ.setTitle("Z");
         graphAcc.addSeries(seriesZ);
     }
+
+    private void setUpGraphView2(){
+        graphAcc2 = (GraphView) getActivity().findViewById(R.id.graphAcc2);
+        graphAcc2.getViewport().setYAxisBoundsManual(true);
+        graphAcc2.getViewport().setMinY(-1 * sensorToBeListenedTo.getMaximumRange());
+        graphAcc2.getViewport().setMaxY(sensorToBeListenedTo.getMaximumRange());
+        graphAcc2.getViewport().setMinX(0);
+        graphAcc2.getViewport().setMaxX(1000);
+        graphAcc2.getViewport().setXAxisBoundsManual(true);
+        graphAcc2.getLegendRenderer().setVisible(true);
+        graphAcc2.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphAcc2.getLegendRenderer().setPadding(5);
+        graphAcc2.getLegendRenderer().setTextSize(25);
+        graphAcc2.getLegendRenderer().setMargin(30);
+        graphAcc2.getGridLabelRenderer().setVerticalAxisTitle("m/s²");
+        graphAcc2.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
+        graphAcc2.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        seriesX2 = new LineGraphSeries<DataPoint>();
+        seriesX2.setColor(Color.BLUE);
+        seriesX2.setTitle("X");
+        graphAcc2.addSeries(seriesX2);
+        seriesY2 = new LineGraphSeries<DataPoint>();
+        seriesY2.setColor(Color.GREEN);
+        seriesY2.setTitle("Y");
+        graphAcc2.addSeries(seriesY2);
+        seriesZ2 = new LineGraphSeries<DataPoint>();
+        seriesZ2.setColor(Color.RED);
+        seriesZ2.setTitle("Z");
+        graphAcc2.addSeries(seriesZ2);
+    }
+
+
+
+
+
     @Override
     public void onResume() {
         super.onResume();
@@ -204,13 +234,12 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
         seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
+        seriesX2.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
+        seriesY2.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
+        seriesZ2.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
         if(csvAcc.isChecked()) {
-<<<<<<< HEAD
             saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2]+"\n", true);
-=======
-            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n");
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
 
@@ -223,7 +252,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-<<<<<<< HEAD
     public void saveFile(String text, boolean append)
     {
         FileOutputStream fos = null;
@@ -233,13 +261,6 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                 fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
             else
                 fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
-=======
-    public void saveFile(String text)
-    {
-
-        try {
-            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -249,16 +270,9 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     }
 
     }
-<<<<<<< HEAD
     public String getFileContent(String file)
     {
         String text = "";
-=======
-    public String readFile(String file)
-    {
-        String text ="";
-
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();
@@ -286,8 +300,12 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
                         if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[0])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
+                            graphAcc.setVisibility(View.VISIBLE);
+                            graphAcc2.setVisibility(View.INVISIBLE);
                         } else if (sampleFreq.equals(getResources().getStringArray(R.array.sampling_frequencies)[1])) {
                             sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+                            graphAcc.setVisibility(View.INVISIBLE);
+                            graphAcc2.setVisibility(View.VISIBLE);
                         }
                         if(csvAcc.isChecked())
                             saveFile("Zeit"+"               " + "X-Achse" + "           " + "Y-Achse" + "         "+ "Z-Achse"+"\n", false);
@@ -302,13 +320,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         saveswitch.setChecked(false);
-<<<<<<< HEAD
                         if(csvAcc.isChecked()) {
                             Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
                             tvCsvContent.setText(getFileContent(fileName));
                         }
-=======
->>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
                     }
                 } else {
                     // Failure! Sensor not found on device.
