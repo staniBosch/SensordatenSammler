@@ -73,6 +73,7 @@
             android:id="@+id/csvBoxGps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:layout_below="@id/minPosChangeGPS"
             android:text="@string/local_storage_checkbox"
             android:textSize="20sp"
@@ -86,5 +87,33 @@
             android:text="@string/save_btn"
             android:textSize="20sp"
             android:padding="10sp"/>
+=======
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="168dp"
+            android:layout_marginEnd="17dp"
+            android:layout_marginRight="11dp"
+            android:text="Speichern .csv" />
+
+        <Button
+            android:id="@+id/svbtn"
+            android:layout_width="112dp"
+            android:layout_height="48dp"
+            android:layout_below="@+id/bStartStopGPS"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="143dp"
+            android:layout_marginLeft="143dp"
+            android:layout_marginTop="373dp"
+            android:layout_marginEnd="136dp"
+            android:layout_marginRight="136dp"
+            android:layout_marginBottom="3dp"
+            android:paddingBottom="10dp"
+            android:text="@string/save_btn" />
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
     </RelativeLayout>
 </ScrollView>

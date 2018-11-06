@@ -45,7 +45,11 @@ public class NetworkLocationFragment extends Fragment implements LocationListene
         startStopBtnNetwork.setOnClickListener(this);
         timeIntervMs = view.findViewById(R.id.minIntervallTimeNetwork);
         posChangeInM = view.findViewById(R.id.minPosChangeNetwork);
+<<<<<<< HEAD
         csvNetloc = view.findViewById(R.id.csvBoxNetLoc);
+=======
+        csvNetloc = view.findViewById(R.id.csvBoxNetloc);
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
         csvNetloc.setEnabled(true);
         saveFile("Zeit"+"," + "latitude" + "," + "longitude" + ","+ "altitude"+"\n");
         return view;

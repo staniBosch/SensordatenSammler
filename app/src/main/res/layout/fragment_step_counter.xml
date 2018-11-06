@@ -57,9 +57,19 @@
             android:id="@+id/csvBoxStep"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:layout_below="@id/spinnerLabelStepCounter"
             android:text="@string/local_storage_checkbox"
             android:textSize="20sp"
             android:padding="10sp" />
+=======
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="113dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginRight="11dp"
+            android:text="Speichern .csv" />
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
     </RelativeLayout>
 </ScrollView>

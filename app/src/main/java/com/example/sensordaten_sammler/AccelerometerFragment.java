@@ -67,7 +67,11 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     double graphLastXValTime;
     double x1,y1,z1;
     Timer timer = new Timer();
+<<<<<<< HEAD
     private static final String fileName = "ACCFile.csv";
+=======
+    String fileName = "ACCFile.csv";
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
 
 //    long startTime;
 
@@ -83,6 +87,10 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.sampling_frequencies, R.layout.spinner_layout);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
         sampleFreqSpinnerAcc.setAdapter(adapter);
+<<<<<<< HEAD
+=======
+        saveFile("Zeit"+"," + "X-Achse" + "," + "Y-Achse" + ","+ "Z-Achse"+"\n");
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
         //startTime = System.nanoTime() / 10000000;
 //        startTime = System.nanoTime() / 10000000;
         saveswitch = view.findViewById(R.id.switchsv_ac);
@@ -198,7 +206,11 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);
         graphLastXValTime++;
         if(csvAcc.isChecked()) {
+<<<<<<< HEAD
             saveFile(event.timestamp / 1000000 + " : " + "x: " + event.values[0] + " y: " + event.values[1] + " z: " + event.values[2]+"\n", true);
+=======
+            saveFile(System.currentTimeMillis()+"," + event.values[0] + "," + event.values[1] + "," + event.values[2]+"\n");
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
             //Toast.makeText(getActivity(), "" + readFile("ACCFile.csv"), Toast.LENGTH_SHORT).show();
         }
 
@@ -211,6 +223,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+<<<<<<< HEAD
     public void saveFile(String text, boolean append)
     {
         FileOutputStream fos = null;
@@ -220,6 +233,13 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                 fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
             else
                 fos = getActivity().openFileOutput(fileName,getActivity().MODE_PRIVATE);
+=======
+    public void saveFile(String text)
+    {
+
+        try {
+            FileOutputStream fos = getActivity().openFileOutput(fileName,getActivity().MODE_APPEND);
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
             fos.write(text.getBytes());
             fos.close();
             //Toast.makeText(getActivity(), "Gespeichert!", Toast.LENGTH_SHORT).show();
@@ -229,9 +249,16 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     }
 
     }
+<<<<<<< HEAD
     public String getFileContent(String file)
     {
         String text = "";
+=======
+    public String readFile(String file)
+    {
+        String text ="";
+
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
         try {
             FileInputStream fis = getActivity().openFileInput(file);
             int size = fis.available();
@@ -275,10 +302,13 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         saveswitch.setChecked(false);
+<<<<<<< HEAD
                         if(csvAcc.isChecked()) {
                             Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
                             tvCsvContent.setText(getFileContent(fileName));
                         }
+=======
+>>>>>>> 87e15d735a02ff2cd16b1a9a63b8443eb977f9f1
                     }
                 } else {
                     // Failure! Sensor not found on device.
