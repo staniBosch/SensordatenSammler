@@ -186,6 +186,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(R.string.sensor_list_title);
                 break;
+            case R.id.all_sessions_btn:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new SessionFragment()).commit();
+                if (getSupportActionBar() != null)
+                    getSupportActionBar().setTitle("Session List");
+                break;
 
         }
         return super.onOptionsItemSelected(item);
