@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -112,7 +113,10 @@ public class SessionFragment extends Fragment {
 
             if (item != null) {
                 try {
-                    viewHolder.itemView.setText("SessionID: " + item.get("id"));
+                    if(Integer.parseInt(item.get("id").toString()) == Session.getID())
+                        viewHolder.itemView.setText("SessionID: " + item.get("id")+" --current Session--");
+                    else
+                        viewHolder.itemView.setText("SessionID: " + item.get("id"));
                 }
                 catch (JSONException e){
                     e.printStackTrace();
