@@ -90,7 +90,7 @@ public class HumidityFragment extends Fragment implements SensorEventListener, V
 
                             try {
                                 data.put("humidity", value);
-                                data.put("session_id", Session.getID(getContext()));
+                                data.put("session_id", Session.getID());
 
                             } catch (JSONException e) {
                                 e.printStackTrace();

@@ -37,9 +37,7 @@ public class ConnectionRest extends AsyncTask<String, Void, Void> {
 
             try{
                 response = client.newCall(request).execute();
-                String resstr = response.body().string();
-                Log.d("Response", resstr);
-                if(resstr.contains("REFERENCES")); Session.ID = -1;
+                Log.d("Response", response.body().string());
             }
             catch(IOException e){
                 e.printStackTrace();

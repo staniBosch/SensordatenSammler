@@ -110,7 +110,7 @@ public class MagnetometerFragment extends Fragment implements SensorEventListene
                                 data.put("x", x1);
                                 data.put("y", y1);
                                 data.put("z", z1);
-                                data.put("session_id", Session.getID(getContext()));
+                                data.put("session_id", Session.getID());
 
                             } catch (JSONException e) {
                                 e.printStackTrace();

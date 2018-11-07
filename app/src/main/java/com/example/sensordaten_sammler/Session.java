@@ -22,7 +22,7 @@ import okhttp3.Response;
 
 public class Session {
 
-    public static int ID =-1;
+    private static int ID =-1;
 
     public static int getID(Context ctx){
 
@@ -97,6 +97,10 @@ public class Session {
             }.execute(data.toString());
         }
 
+        return Session.ID;
+    }
+
+    public static int getID(){
         return Session.ID;
     }
 

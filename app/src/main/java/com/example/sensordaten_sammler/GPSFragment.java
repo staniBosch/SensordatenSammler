@@ -314,7 +314,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
             gpsData.put("Latitude", params[0]);
             gpsData.put("Longitude", params[1]);
             gpsData.put("Hoehe", params[2]);
-            gpsData.put("session_id", Session.getID(getContext()));
+            gpsData.put("session_id", Session.getID());
             jsonArray.put(gpsData);
         }
         catch (JSONException e){
