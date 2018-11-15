@@ -32,14 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 public class GPSFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
@@ -56,7 +48,7 @@ public class GPSFragment extends Fragment implements LocationListener, View.OnCl
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_gps, container, false);
+        View view = inflater.inflate(R.layout.fragment_location, container, false);
         startStopBtnGPS = view.findViewById(R.id.bStartStopGPS);
         startStopBtnGPS.setOnClickListener(this);
         svBtn = view.findViewById(R.id.svbtn);
