@@ -1,12 +1,8 @@
 package com.example.sensordaten_sammler;
 
-import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,14 +11,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -50,10 +41,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                    new AccelerometerFragment()).commit();
-            navigationView.setCheckedItem(R.id.nav_accelerometer);
+                    new LocationFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_loc);
             if (getSupportActionBar() != null)
-                getSupportActionBar().setTitle(R.string.accelerometer_title_text);
+                getSupportActionBar().setTitle(R.string.loc_title_text);
         }
 
 
@@ -93,23 +84,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(R.string.proximity_title_text);
                 break;
-            case R.id.nav_network_location:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new NetworkLocationFragment()).commit();
-                if (getSupportActionBar() != null)
-                    getSupportActionBar().setTitle(R.string.network_location_title_text);
-                break;
             case R.id.nav_battery:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         new BatteryFragment()).commit();
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(R.string.battery_title_text);
                 break;
-            case R.id.nav_gps:
+            case R.id.nav_loc:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new GPSFragment()).commit();
+                        new LocationFragment()).commit();
                 if (getSupportActionBar() != null)
-                    getSupportActionBar().setTitle(R.string.gps_title_text);
+                    getSupportActionBar().setTitle(R.string.loc_title_text);
                 break;
             case R.id.nav_wifi:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,

@@ -13,5 +13,5 @@
         app:showAsAction="never"></item>
     <item
         android:id="@+id/all_sessions_btn"
-        android:title="Sessions" />
+        android:title="Sessions"></item>
 </menu>

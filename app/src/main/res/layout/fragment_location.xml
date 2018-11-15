@@ -9,82 +9,537 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/minIntervallTimeGPS"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:digits="0123456789"
-            android:hint="@string/label__intervall_gps"
-            android:inputType="numberDecimal"
-            android:padding="10sp"
-            android:textSize="15sp"
-            android:layout_marginTop="10sp"/>
-
-        <EditText
-            android:id="@+id/minPosChangeGPS"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/minIntervallTimeGPS"
-            android:digits="0123456789."
-            android:hint="@string/label__change_in_dist_gps"
-            android:inputType="numberDecimal"
-            android:padding="10sp"
-            android:textSize="15sp"
-            android:layout_marginTop="10sp"/>
+        android:orientation="vertical"
+        android:background="@drawable/border"
+        android:padding="10sp">
 
         <Button
-            android:id="@+id/bStartStopGPS"
+            android:id="@+id/chooseLocMethodsBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/csvBoxGps"
-            android:drawableLeft="@drawable/ic_play_arrow"
-            android:drawableStart="@drawable/ic_play_arrow"
-            android:text="@string/start_listening_btn_gps"
+            android:text="@string/choose_loc_methods_btn"
+            android:textSize="15sp"
+            android:padding="10sp"/>
+
+        <EditText
+            android:id="@+id/minPosChangeLocMan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chooseLocMethodsBtn"
+            android:digits="0123456789."
+            android:hint="@string/label__change_in_dist_LocMan"
+            android:inputType="numberDecimal"
+            android:padding="10sp"
             android:textSize="15sp"
             android:layout_marginTop="10sp"/>
 
-        <TextView
-            android:id="@+id/latValueGPS"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/minIntervallTimeLoc"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/bStartStopGPS"
+            android:layout_below="@id/minPosChangeLocMan"
+            android:digits="0123456789"
+            android:hint="@string/label_min_intervall_LocMan"
+            android:inputType="numberDecimal"
             android:padding="10sp"
-            android:textSize="20sp" />
+            android:textSize="15sp"
+            android:layout_marginTop="10sp"/>
 
-        <TextView
-            android:id="@+id/longValueGPS"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/fastesIntervallTimeLoc"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/latValueGPS"
+            android:layout_below="@id/minIntervallTimeLoc"
+            android:digits="0123456789"
+            android:hint="@string/label_fastes_intervall_Loc"
+            android:inputType="numberDecimal"
             android:padding="10sp"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/altValueGPS"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/longValueGPS"
-            android:padding="10sp"
-            android:textSize="20sp" />
+            android:textSize="15sp"
+            android:layout_marginTop="10sp"/>
 
         <CheckBox
-            android:id="@+id/csvBoxGps"
+            android:id="@+id/csvBoxLoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/minPosChangeGPS"
+            android:layout_below="@id/fastesIntervallTimeLoc"
             android:text="@string/local_storage_checkbox"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:padding="10sp" />
 
         <Button
-            android:id="@+id/svbtn"
+            android:id="@+id/bStartStopLoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/altValueGPS"
+            android:layout_below="@+id/csvBoxLoc"
+            android:drawableLeft="@drawable/ic_play_arrow"
+            android:drawableStart="@drawable/ic_play_arrow"
+            android:text="@string/start_listening_btn_loc"
+            android:textSize="15sp"
+            android:layout_marginTop="5sp"/>
+
+        <TextView
+            android:id="@+id/tvFusedHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fused"
+            android:layout_below="@+id/bStartStopLoc"
+            android:textSize="14sp"
+            android:padding="2sp"
+            android:textStyle="bold"
+            android:layout_marginTop="5sp"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvFusedHeadline"
+            android:id="@+id/liveLocDataTableFused"
+            android:stretchColumns="*"
+            android:shrinkColumns="1,2,3"
+            android:layout_marginTop="2sp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvFusedPriority"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_priority"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvFusedLatitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_lat"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvFusedLongitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_long"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvFusedAltitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_alt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvFusedSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_speed"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/high_acc"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatHighAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLonHighAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltHighAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvSpeedHighAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/balanced"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatBalanced"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLonBalanced"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltBalanced"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/tvSpeedBalanced"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/low_pow"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatLowPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLonLowPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltLowPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvSpeedLowPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_pow"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatNoPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start" />
+
+                <TextView
+                    android:id="@+id/tvLonNoPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltNoPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvSpeedNoPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/tvLocManHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/loc_man"
+            android:layout_below="@+id/liveLocDataTableFused"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:padding="2sp"
+            android:layout_marginTop="5sp"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvLocManHeadline"
+            android:id="@+id/liveLocDataTableLocMan"
+            android:stretchColumns="*"
+            android:shrinkColumns="1,2,3"
+            android:layout_marginTop="2sp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocManProvider"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_provider"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvLocManLatitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_lat"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvLocManLongitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_long"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvLocManAltitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_alt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvLocManSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_speed"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gps"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatGPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLonGPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltGPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvSpeedGPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvLocMethRow6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/network"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLatNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvLonNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvAltNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvSpeedNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+            </TableRow>
+        </TableLayout>
+
+        <Button
+            android:id="@+id/svbtnLocMan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/liveLocDataTableLocMan"
             android:text="@string/save_btn"
-            android:textSize="20sp"
-            android:padding="10sp"/>
+            android:textSize="15sp"
+            android:padding="10sp"
+            android:layout_marginTop="5sp"/>
+
     </RelativeLayout>
+
 </ScrollView>

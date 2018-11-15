@@ -3,6 +3,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_loc"
+            android:icon="@drawable/ic_gps"
+            android:title="Lokalisierung" />
+        <item
             android:id="@+id/nav_accelerometer"
             android:icon="@drawable/ic_accelerometer"
             android:title="Accelerometer" />
@@ -11,17 +15,9 @@
             android:icon="@drawable/ic_gyro"
             android:title="Gyroskop" />
         <item
-            android:id="@+id/nav_gps"
-            android:icon="@drawable/ic_gps"
-            android:title="GPS" />
-        <item
             android:id="@+id/nav_magnetometer"
             android:icon="@drawable/ic_magnetometer"
             android:title="Magnetometer" />
-        <item
-            android:id="@+id/nav_network_location"
-            android:icon="@drawable/ic_network_location"
-            android:title="Netzwerk-Lokalisierung" />
         <item
             android:id="@+id/nav_light"
             android:icon="@drawable/ic_light"
