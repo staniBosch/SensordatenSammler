@@ -123,4 +123,5 @@
     <string name="t_head_long">Longitude</string>
     <string name="t_head_alt">Altitude</string>
     <string name="t_head_speed">Speed</string>
+    <string name="t_head_acc">Accuracy</string>
 </resources>

@@ -150,6 +150,15 @@
                     android:padding="2sp"
                     android:gravity="start"
                     android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/tvFusedAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_acc"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
             </TableRow>
 
             <TableRow
@@ -194,6 +203,14 @@
 
                 <TextView
                     android:id="@+id/tvSpeedHighAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccHighAcc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/loc_data_empty"
@@ -250,6 +267,14 @@
                     android:textSize="12sp"
                     android:padding="2sp"
                     android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccBalanced"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
             </TableRow>
 
             <TableRow
@@ -300,6 +325,14 @@
                     android:textSize="12sp"
                     android:padding="2sp"
                     android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccLowPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
             </TableRow>
 
             <TableRow
@@ -344,6 +377,14 @@
 
                 <TextView
                     android:id="@+id/tvSpeedNoPow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccNoPow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/loc_data_empty"
@@ -427,6 +468,15 @@
                     android:padding="2sp"
                     android:gravity="start"
                     android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/tvLocManAcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_acc"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
             </TableRow>
 
             <TableRow
@@ -477,6 +527,14 @@
                     android:textSize="12sp"
                     android:padding="2sp"
                     android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccGPS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
             </TableRow>
 
             <TableRow
@@ -521,6 +579,14 @@
 
                 <TextView
                     android:id="@+id/tvSpeedNetwork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+                <TextView
+                    android:id="@+id/tvAccNetwork"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/loc_data_empty"

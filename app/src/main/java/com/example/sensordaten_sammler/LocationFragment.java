@@ -27,6 +27,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -44,17 +46,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LocationFragment extends Fragment implements LocationListener, View.OnClickListener {
+public class LocationFragment extends Fragment implements LocationListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
     Button startStopBtn, svBtn, choosedLocMethBtn;
     EditText timeIntervMs, posChangeInM, fastesTimeIntervMs;
-    TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc
-            , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced
-            ,tvLatLowPow, tvLongLowPow, tvAltLowPow, tvSpeedLowPow
-            ,tvLatNoPow, tvLongNoPow, tvAltNoPow, tvSpeedNoPow
-            ,tvLatGPS, tvLongGPS, tvAltGPS, tvSpeedGPS
-            ,tvLatNetwork, tvLongNetwork, tvAltNetwork, tvSpeedNetwork;
+    TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc, tvAccHighAcc
+            , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced, tvAccBalanced
+            ,tvLatLowPow, tvLongLowPow, tvAltLowPow, tvSpeedLowPow, tvAccLowPow
+            ,tvLatNoPow, tvLongNoPow, tvAltNoPow, tvSpeedNoPow, tvAccNoPow
+            ,tvLatGPS, tvLongGPS, tvAltGPS, tvSpeedGPS, tvAccGPS
+            ,tvLatNetwork, tvLongNetwork, tvAltNetwork, tvSpeedNetwork, tvAccNetwork;
     String fileNameGPS = "GPSFile.csv", fileNameNetwork = "NetworkFile.csv"
             , fileNameHighAcc = "HighAccFile.csv", fileNameBalanced = "BalancedFile.csv", fileNameLowPow = "LowPowFile.csv", fileNameNoPow = "NoPowFile.csv";
     CheckBox csv;
@@ -65,10 +68,11 @@ public class LocationFragment extends Fragment implements LocationListener, View
     double latitudeGPS, latitudeNetwork, latitudeHighAcc, latitudeBalanced, latitudeLowPow, latitudeNoPow;
     double longitudeGPS, longitudeNetwork, longitudeHighAcc, longitudeBalanced, longitudeLowPow, longitudeNoPow;
     double altitudeGPS, altitudeNetwork, altitudeHighAcc, altitudeBalanced, altitudeLowPow, altitudeNoPow;
-    float speedGPS, speedNetwork, speedHighAcc, speedBalanced, speedLowPow, speedNoPow;
+    float speedGPS, speedNetwork, speedHighAcc, speedBalanced, speedLowPow, speedNoPow, accuracyGPS, accuracyHighAcc, accuracyBalanced, accuracyLowPow, accuracyNoPow, accuracyNetwork;
     public LocationRequest locationRequestHighAcc, locationRequestBalanced, locationRequestLowPower, locationRequestNoPower;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallbackHighAcc, mLocationCallbackBalanced, mLocationCallbackLowPow, mLocationCallbackNoPow;
+    GoogleApiClient mGoogleApiClient;
 
     @Nullable
     @Override
@@ -79,24 +83,17 @@ public class LocationFragment extends Fragment implements LocationListener, View
         startStopBtn.setOnClickListener(this);
         choosedLocMethBtn.setOnClickListener(this);
         svBtn = view.findViewById(R.id.svbtnLocMan);
-        timeIntervMs = view.findViewById(R.id.minIntervallTimeLoc);
-        posChangeInM = view.findViewById(R.id.minPosChangeLocMan);
-        fastesTimeIntervMs = view.findViewById(R.id.fastesIntervallTimeLoc);
-        timeIntervMs.setVisibility(View.INVISIBLE);
-        posChangeInM.setVisibility(View.INVISIBLE);
-        fastesTimeIntervMs.setVisibility(View.INVISIBLE);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         csv = view.findViewById(R.id.csvBoxLoc);
         csv.setEnabled(true);
         selectedItems = new ArrayList<>();
         listItems = getResources().getStringArray(R.array.loc_methods_items);
         checkedItems = new boolean[listItems.length];
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameGPS, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameNetwork, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameHighAcc, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameBalanced, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameLowPow, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + "\n", fileNameNoPow, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameGPS, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameNetwork, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameHighAcc, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameBalanced, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameLowPow, false);
+        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameNoPow, false);
         return view;
     }
 
@@ -104,6 +101,13 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initTVs(view);
+        timeIntervMs = view.findViewById(R.id.minIntervallTimeLoc);
+        posChangeInM = view.findViewById(R.id.minPosChangeLocMan);
+        fastesTimeIntervMs = view.findViewById(R.id.fastesIntervallTimeLoc);
+        timeIntervMs.setVisibility(View.INVISIBLE);
+        posChangeInM.setVisibility(View.INVISIBLE);
+        fastesTimeIntervMs.setVisibility(View.INVISIBLE);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         svBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,26 +122,32 @@ public class LocationFragment extends Fragment implements LocationListener, View
         tvLongHighAcc = view.findViewById(R.id.tvLonHighAcc);
         tvAltHighAcc = view.findViewById(R.id.tvAltHighAcc);
         tvSpeedHighAcc = view.findViewById(R.id.tvSpeedHighAcc);
+        tvAccHighAcc = view.findViewById(R.id.tvAccHighAcc);
         tvLatBalanced = view.findViewById(R.id.tvLatBalanced);
         tvLongBalanced = view.findViewById(R.id.tvLonBalanced);
         tvAltBalanced = view.findViewById(R.id.tvAltBalanced);
         tvSpeedBalanced = view.findViewById(R.id.tvSpeedBalanced);
+        tvAccBalanced = view.findViewById(R.id.tvAccBalanced);
         tvLatLowPow = view.findViewById(R.id.tvLatLowPow);
         tvLongLowPow = view.findViewById(R.id.tvLonLowPow);
         tvAltLowPow = view.findViewById(R.id.tvAltLowPow);
         tvSpeedLowPow = view.findViewById(R.id.tvSpeedLowPow);
+        tvAccLowPow = view.findViewById(R.id.tvAccLowPow);
         tvLatNoPow = view.findViewById(R.id.tvLatNoPow);
         tvLongNoPow = view.findViewById(R.id.tvLonNoPow);
         tvAltNoPow = view.findViewById(R.id.tvAltNoPow);
         tvSpeedNoPow = view.findViewById(R.id.tvSpeedNoPow);
+        tvAccNoPow = view.findViewById(R.id.tvAccNoPow);
         tvLatGPS = view.findViewById(R.id.tvLatGPS);
         tvLongGPS = view.findViewById(R.id.tvLonGPS);
         tvAltGPS = view.findViewById(R.id.tvAltGPS);
         tvSpeedGPS = view.findViewById(R.id.tvSpeedGPS);
+        tvAccGPS = view.findViewById(R.id.tvAccGPS);
         tvLatNetwork = view.findViewById(R.id.tvLatNetwork);
         tvLongNetwork = view.findViewById(R.id.tvLonNetwork);
         tvAltNetwork = view.findViewById(R.id.tvAltNetwork);
         tvSpeedNetwork = view.findViewById(R.id.tvSpeedNetwork);
+        tvAccNetwork = view.findViewById(R.id.tvAccNetwork);
     }
 
     @Override
@@ -148,6 +158,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 this.longitudeGPS = location.getLongitude();
                 this.altitudeGPS = location.getAltitude();
                 this.speedGPS = location.getSpeed();
+                this.accuracyGPS = location.getAccuracy();
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeGPS);
                 String lon = convertLongitude(longitudeGPS);
@@ -157,7 +168,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     tvAltGPS.setText(Double.toString(altitudeGPS));
                     tvSpeedGPS.setText(Float.toString(speedGPS));
                     if(csv.isChecked()) {
-                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeGPS + "," + speedGPS + "\n", fileNameGPS, true);
+                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeGPS + "," + speedGPS + "," + accuracyGPS + "\n", fileNameGPS, true);
                     }
                 }
             }
@@ -166,6 +177,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 this.longitudeNetwork = location.getLongitude();
                 this.altitudeNetwork = location.getAltitude();
                 this.speedNetwork = location.getSpeed();
+                this.accuracyNetwork = location.getAccuracy();
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeNetwork);
                 String lon = convertLongitude(longitudeNetwork);
@@ -175,7 +187,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     tvAltNetwork.setText(Double.toString(altitudeNetwork));
                     tvSpeedNetwork.setText(Float.toString(speedNetwork));
                     if(csv.isChecked()) {
-                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNetwork + "," + speedNetwork + "\n", fileNameNetwork, true);
+                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNetwork + "," + speedNetwork + "," + accuracyNetwork + "\n", fileNameNetwork, true);
                     }
                 }
             }
@@ -187,6 +199,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         this.longitudeHighAcc  = location.getLongitude();
         this.altitudeHighAcc  = location.getAltitude();
         this.speedHighAcc  = location.getSpeed();
+        this.accuracyHighAcc = location.getAccuracy();
         Activity activity = getActivity();
         String lat = convertLatitude(latitudeHighAcc);
         String lon = convertLongitude(longitudeHighAcc);
@@ -195,8 +208,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvLongHighAcc .setText(lon);
             tvAltHighAcc .setText(Double.toString(altitudeHighAcc ));
             tvSpeedHighAcc .setText(Float.toString(speedHighAcc ));
+            tvAccHighAcc .setText(Float.toString(accuracyHighAcc ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeHighAcc + "," + speedHighAcc + "\n", fileNameHighAcc, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeHighAcc + "," + speedHighAcc + "," + accuracyHighAcc + "\n", fileNameHighAcc, true);
             }
         }
     }
@@ -206,6 +220,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         this.longitudeBalanced  = location.getLongitude();
         this.altitudeBalanced  = location.getAltitude();
         this.speedBalanced  = location.getSpeed();
+        this.accuracyBalanced = location.getAccuracy();
         Activity activity = getActivity();
         String lat = convertLatitude(latitudeBalanced);
         String lon = convertLongitude(longitudeBalanced);
@@ -214,8 +229,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvLongBalanced .setText(lon);
             tvAltBalanced .setText(Double.toString(altitudeBalanced ));
             tvSpeedBalanced .setText(Float.toString(speedBalanced ));
+            tvAccBalanced .setText(Float.toString(accuracyBalanced ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeBalanced + "," + speedBalanced + "\n", fileNameBalanced, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeBalanced + "," + speedBalanced + "," + accuracyBalanced + "\n", fileNameBalanced, true);
             }
         }
     }
@@ -225,6 +241,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         this.longitudeLowPow  = location.getLongitude();
         this.altitudeLowPow  = location.getAltitude();
         this.speedLowPow  = location.getSpeed();
+        this.accuracyLowPow = location.getAccuracy();
         Activity activity = getActivity();
         String lat = convertLatitude(latitudeLowPow);
         String lon = convertLongitude(longitudeLowPow);
@@ -233,8 +250,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvLongLowPow .setText(lon);
             tvAltLowPow .setText(Double.toString(altitudeLowPow ));
             tvSpeedLowPow .setText(Float.toString(speedLowPow ));
+            tvAccLowPow .setText(Float.toString(accuracyLowPow ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeLowPow + "," + speedLowPow + "\n", fileNameLowPow, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeLowPow + "," + speedLowPow + "," + accuracyLowPow + "\n", fileNameLowPow, true);
             }
         }
     }
@@ -244,6 +262,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         this.longitudeNoPow  = location.getLongitude();
         this.altitudeNoPow = location.getAltitude();
         this.speedNoPow  = location.getSpeed();
+        this.accuracyNoPow = location.getAccuracy();
         Activity activity = getActivity();
         String lat = convertLatitude(latitudeNoPow);
         String lon = convertLongitude(longitudeNoPow);
@@ -252,8 +271,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvLongNoPow .setText(lon);
             tvAltNoPow .setText(Double.toString(altitudeNoPow ));
             tvSpeedNoPow .setText(Float.toString(speedNoPow ));
+            tvAccNoPow .setText(Double.toString(accuracyNoPow ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNoPow + "," + speedNoPow + "\n", fileNameNoPow, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNoPow + "," + speedNoPow + ", " + accuracyNoPow + "\n", fileNameNoPow, true);
             }
         }
     }
@@ -608,6 +628,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     LocationServices.getFusedLocationProviderClient(getActivity()).requestLocationUpdates(newLocationRequest, callback = new LocationCallback() {
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
+                            if (locationResult == null) {
+                                return;
+                            }
                             switch(locationRequestPriorityNr){
                                 case LocationRequest.PRIORITY_HIGH_ACCURACY:
                                     onLocationChangedHighAcc(locationResult.getLastLocation());
@@ -703,11 +726,34 @@ public class LocationFragment extends Fragment implements LocationListener, View
     @Override
     public void onPause() {
         super.onPause();
+        Log.d("test", "\ninOnPause 1\n");
         MainActivity.locationManager.removeUpdates(this);
-        LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackHighAcc);
-        LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackBalanced);
-        LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackLowPow);
-        LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackNoPow);
+        Log.d("test", "\ninOnPause 2\n");
+        if(mLocationCallbackHighAcc != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 3\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackHighAcc);
+            Log.d("test", "\ninOnPause 4\n");
+            mLocationCallbackHighAcc = null;
+        }
+        if(mLocationCallbackBalanced != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 5\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackBalanced);
+            Log.d("test", "\ninOnPause 6\n");
+            mLocationCallbackBalanced = null;
+        }
+        if(mLocationCallbackLowPow != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 7\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackLowPow);
+            Log.d("test", "\ninOnPause 8\n");
+            mLocationCallbackLowPow = null;
+        }
+        if(mLocationCallbackNoPow != null && mFusedLocationClient != null){
+            Log.d("test", "\ninOnPause 9\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackNoPow);
+            Log.d("test", "\ninOnPause 10\n");
+            mLocationCallbackNoPow = null;
+        }
+
         String buttonText = startStopBtn.getText().toString();
         if (buttonText.compareTo(getResources().getString(R.string.stop_listening_btn_loc)) == 0) {
             startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
@@ -719,6 +765,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("test", "\ninOnDestroy 1\n");
         MainActivity.locationManager.removeUpdates(this);
         String buttonText = startStopBtn.getText().toString();
         if (buttonText.compareTo(getResources().getString(R.string.stop_listening_btn_loc)) == 0) {
@@ -782,4 +829,27 @@ public class LocationFragment extends Fragment implements LocationListener, View
         Log.d("RESTAPI",locData.toString());
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
 }
