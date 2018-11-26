@@ -377,7 +377,8 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     if (tvAltGPS != null)
                                         tvAltGPS.setText(Double.toString(altitude));
                                 }
-                            } else {  // Benutzer hat Stop gedrückt
+                            }
+                            else {  // Benutzer hat Stop gedrückt
                                 MainActivity.locationManager.removeUpdates(this);
                                 startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
                                 Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
