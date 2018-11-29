@@ -606,6 +606,505 @@
             android:padding="10sp"
             android:layout_marginTop="5sp"/>
 
+        <TextView
+            android:id="@+id/tvRouteHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/route_section_headline"
+            android:layout_below="@+id/svbtnLocMan"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="2sp"
+            android:layout_marginTop="5sp"/>
+
+        <TextView
+            android:id="@+id/tvRouteIndoorHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/indoor_table_wp_headline"
+            android:layout_below="@+id/tvRouteHeadline"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:padding="2sp"
+            android:layout_marginTop="5sp"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvRouteIndoorHeadline"
+            android:id="@+id/routeIndoors"
+            android:stretchColumns="*"
+            android:shrinkColumns="1,2,3,4"
+            android:layout_marginTop="2sp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvIndoorWPID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_indoor_wp_id"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorLatWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_lat"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorLongWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_long"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorAltWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_alt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorTS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_ts"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvRmWPTIndoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_rm_wpt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+            </TableRow>
+
+<!--            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvIndoorWPID1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wp1"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorLatWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_lat_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorLongWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_long_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorAltWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_alt_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorTS1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <Button
+                    android:id="@+id/btnRmWPT1Indoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_rm_wpt"
+                    android:textSize="12sp"
+                    android:minHeight="2dp"
+                    android:minWidth="2dp" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvIndoorWPID2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wp2"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorLatWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_lat_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorLongWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_long_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etIndoorAltWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_alt_ind"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvIndoorTS2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <Button
+                    android:id="@+id/btnRmWPT2Indoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_rm_wpt"
+                    android:textSize="12sp"
+                    android:minHeight="2dp"
+                    android:minWidth="2dp" />
+
+            </TableRow>
+-->
+        </TableLayout>
+
+        <Button
+            android:id="@+id/btnAddWPIndoor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/routeIndoors"
+            android:text="@string/btn_new_wp"
+            android:textSize="12sp"
+            android:layout_marginTop="5sp"
+            android:minHeight="2dp"
+            android:minWidth="2dp"/>
+
+        <Button
+            android:id="@+id/saveIndoorTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btnAddWPIndoor"
+            android:layout_toEndOf="@+id/btnAddWPIndoor"
+            android:layout_below="@+id/routeIndoors"
+            android:text="@string/btn_sv_ts"
+            android:textSize="12sp"
+            android:minHeight="2dp"
+            android:minWidth="2dp"
+            android:layout_marginTop="5sp"/>
+
+        <TextView
+            android:id="@+id/tvRouteOutdoorHeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/outdoor_table_wp_headline"
+            android:layout_below="@+id/btnAddWPIndoor"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:padding="2sp"
+            android:layout_marginTop="5sp"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvRouteOutdoorHeadline"
+            android:id="@+id/routeOutdoor"
+            android:stretchColumns="*"
+            android:shrinkColumns="1,2,3,4"
+            android:layout_marginTop="2sp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvOutdoorWPID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_indoor_wp_id"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorLatWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_lat"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorLongWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_long"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorAltWP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_alt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorTS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_ts"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvRmWPTOutdoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/t_head_rm_wpt"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"
+                    android:textStyle="bold"/>
+
+            </TableRow>
+
+<!--            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvOutdoorWPID1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wp1"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorLatWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_lat_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorLongWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_long_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorAltWP1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp1_alt_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorTS1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <Button
+                    android:id="@+id/btnRmWPT1Outdoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_rm_wpt"
+                    android:textSize="12sp"
+                    android:minHeight="2dp"
+                    android:minWidth="2dp" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvOutdoorWPID2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/wp2"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorLatWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_lat_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorLongWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_long_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <EditText
+                    android:id="@+id/etOutdoorAltWP2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789.NESW° "
+                    android:hint="@string/wp2_alt_out"
+                    android:inputType="numberDecimal"
+                    android:padding="2sp"
+                    android:textSize="12sp"
+                    android:gravity="start"/>
+
+                <TextView
+                    android:id="@+id/tvOutdoorTS2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loc_data_empty"
+                    android:textSize="12sp"
+                    android:padding="2sp"
+                    android:gravity="start"/>
+
+                <Button
+                    android:id="@+id/btnRmWPT2Outdoor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_rm_wpt"
+                    android:textSize="12sp"
+                    android:minHeight="2dp"
+                    android:minWidth="2dp" />
+
+            </TableRow>
+-->
+        </TableLayout>
+
+        <Button
+            android:id="@+id/btnAddWPOutdoor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/routeOutdoor"
+            android:text="@string/btn_new_wp"
+            android:textSize="12sp"
+            android:layout_marginTop="5sp"
+            android:minHeight="2dp"
+            android:minWidth="2dp"/>
+
+        <Button
+            android:id="@+id/saveOutdoorTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btnAddWPOutdoor"
+            android:layout_toEndOf="@+id/btnAddWPOutdoor"
+            android:layout_below="@+id/routeOutdoor"
+            android:text="@string/btn_sv_ts"
+            android:textSize="12sp"
+            android:minHeight="2dp"
+            android:minWidth="2dp"
+            android:layout_marginTop="5sp"/>
+
     </RelativeLayout>
 
 </ScrollView>

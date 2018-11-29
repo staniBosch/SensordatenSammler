@@ -106,6 +106,8 @@
     <string name="label_loc_fused">Priorität:</string>
     <string name="fused">LocationServices.FusedLocationProviderApi:</string>
     <string name="loc_man">LocationManager:</string>
+    <string name="indoor_table_wp_headline">Indoor:</string>
+    <string name="outdoor_table_wp_headline">Outdoor:</string>
     <string name="high_acc">HighAcc</string>
     <string name="balanced">Balanced</string>
     <string name="low_pow">LowPow</string>
@@ -124,4 +126,94 @@
     <string name="t_head_alt">Altitude</string>
     <string name="t_head_speed">Speed</string>
     <string name="t_head_acc">Accuracy</string>
+    <string name="t_head_indoor_wp_id">WP-Nr.</string>
+    <string name="t_head_ts">Timestamp</string>
+
+    <string-array name="outdoor_route_wpts">
+        <item id="gps">GPS (LocMan)</item>
+        <item id="network">Netzwerk (LocMan)</item>
+        <item id="high_acc">Hohe Genauigkeit</item>
+        <item id="balanced">Genauigkeit und Energieverbrauch balanciert</item>
+        <item id="low_pow">Wenig Energieverbauch</item>
+        <item id="no_pow">Kein Energieverbrauch</item>
+    </string-array>
+
+    <string name="wp1">1</string>
+    <string name="wp1_lat_ind">51.44787°N</string>
+    <string name="wp1_long_ind">7.27072°E</string>
+    <string name="wp1_alt_ind">129.3m</string>
+
+    <string name="wp2">2</string>
+    <string name="wp2_lat_ind">51.44767°N</string>
+    <string name="wp2_long_ind">7.27089°E</string>
+    <string name="wp2_alt_ind">128.5m</string>
+
+    <string name="wp3">3</string>
+    <string name="wp3_lat_ind">51.44740°N</string>
+    <string name="wp3_long_ind">7.27112°E</string>
+    <string name="wp3_alt_ind">127.3m</string>
+
+    <string name="wp4">4</string>
+    <string name="wp4_lat_ind">51.44763°N</string>
+    <string name="wp4_long_ind">7.27183°E</string>
+    <string name="wp4_alt_ind">127.2m</string>
+
+    <string name="wp5">5</string>
+    <string name="wp5_lat_ind">51.44732°N</string>
+    <string name="wp5_long_ind">7.27209°E</string>
+    <string name="wp5_alt_ind">126.4m</string>
+
+    <string name="wp6">6</string>
+    <string name="wp6_lat_ind">51.44708°N</string>
+    <string name="wp6_long_ind">7.27138°E</string>
+    <string name="wp6_alt_ind">126.6m</string>
+
+    <string name="wp7">7</string>
+    <string name="wp7_lat_ind">51.44683°N</string>
+    <string name="wp7_long_ind">7.27160°E</string>
+    <string name="wp7_alt_ind">126.4m</string>
+
+    <string name="wp8">8</string>
+    <string name="wp8_lat_ind">51.44698°N</string>
+    <string name="wp8_long_ind">7.27205°E</string>
+    <string name="wp8_alt_ind">126.3m</string>
+
+
+    <string name="wp1_lat_out">51.44800°N</string>
+    <string name="wp1_long_out">7.27084°E</string>
+    <string name="wp1_alt_out">129.0m</string>
+
+    <string name="wp2_lat_out">51.44828°N</string>
+    <string name="wp2_long_out">7.27171°E</string>
+    <string name="wp2_alt_out">128.7m</string>
+
+    <string name="wp3_lat_out">51.44796°N</string>
+    <string name="wp3_long_out">7.27199°E</string>
+    <string name="wp3_alt_out">127.5m</string>
+
+    <string name="wp4_lat_out">51.44783°N</string>
+    <string name="wp4_long_out">7.27202°E</string>
+    <string name="wp4_alt_out">127.0m</string>
+
+    <string name="wp5_lat_out">51.44733°N</string>
+    <string name="wp5_long_out">7.27246°E</string>
+    <string name="wp5_alt_out">126.3m</string>
+
+    <string name="wp6_lat_out">51.44714°N</string>
+    <string name="wp6_long_out">7.27223°E</string>
+    <string name="wp6_alt_out">126.2m</string>
+
+    <string name="wp7_lat_out">51.44693°N</string>
+    <string name="wp7_long_out">7.27236°E</string>
+    <string name="wp7_alt_out">125.9m</string>
+
+    <string name="wp8_lat_out">51.44674°N</string>
+    <string name="wp8_long_out">7.27176°E</string>
+    <string name="wp8_alt_out">126.3m</string>
+
+    <string name="btn_new_wp">+ Add new Waypoint</string>
+    <string name="route_section_headline">Routen</string>
+    <string name="btn_rm_wpt">X</string>
+    <string name="t_head_rm_wpt">Remove</string>
+    <string name="btn_sv_ts">Stamp the time</string>
 </resources>

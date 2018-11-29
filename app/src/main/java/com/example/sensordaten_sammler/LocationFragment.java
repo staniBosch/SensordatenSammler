@@ -3,6 +3,7 @@ package com.example.sensordaten_sammler;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -17,13 +18,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.method.DigitsKeyListener;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +57,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
-    Button startStopBtn, svBtn, choosedLocMethBtn;
+    Button startStopBtn, svBtn, choosedLocMethBtn, addWPIndoor, addWPOutdoor, svIndoorTS, svOutdoorTS;
     EditText timeIntervMs, posChangeInM, fastesTimeIntervMs;
     TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc, tvAccHighAcc
             , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced, tvAccBalanced
@@ -80,8 +87,16 @@ public class LocationFragment extends Fragment implements LocationListener, View
         View view = inflater.inflate(R.layout.fragment_location, container, false);
         startStopBtn = view.findViewById(R.id.bStartStopLoc);
         choosedLocMethBtn = view.findViewById(R.id.chooseLocMethodsBtn);
+        svIndoorTS = view.findViewById(R.id.saveIndoorTimestamp);
+        svOutdoorTS = view.findViewById(R.id.saveOutdoorTimestamp);
+        addWPIndoor = view.findViewById(R.id.btnAddWPIndoor);
+        addWPOutdoor = view.findViewById(R.id.btnAddWPOutdoor);
         startStopBtn.setOnClickListener(this);
         choosedLocMethBtn.setOnClickListener(this);
+        svIndoorTS.setOnClickListener(this);
+        svOutdoorTS.setOnClickListener(this);
+        addWPIndoor.setOnClickListener(this);
+        addWPOutdoor.setOnClickListener(this);
         svBtn = view.findViewById(R.id.svbtnLocMan);
         csv = view.findViewById(R.id.csvBoxLoc);
         csv.setEnabled(true);
@@ -562,7 +577,154 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 AlertDialog ad = adBuilder.create();
                 ad.show();
                 break;
+
+            case R.id.btnAddWPIndoor:
+                addNewWaypointToIndoorRoute();
+                break;
+
+            case R.id.btnAddWPOutdoor:
+                addNewWaypointToOutdoorRoute();
+                break;
+
+            case R.id.saveIndoorTimestamp:
+                TableLayout indoorRouteTable = getActivity().findViewById(R.id.routeIndoors);
+                for(int i = 1; i < indoorRouteTable.getChildCount(); i++){ // Starte bei zweiten Zeile (Index 1), da sich in der ersten Zeile nur die Spaltenüberschriften befinden
+                    TableRow row = (TableRow) indoorRouteTable.getChildAt(i);
+                    TextView tvTimestamp = (TextView) row.getChildAt(4);
+                    if(tvTimestamp.getText().equals(getString(R.string.loc_data_empty))){
+                        tvTimestamp.setText(Long.toString(System.currentTimeMillis()));
+                        break;
+                    }
+                }
+                break;
+
+            case R.id.saveOutdoorTimestamp:
+                TableLayout outdoorRouteTable = getActivity().findViewById(R.id.routeOutdoor);
+                for(int i = 1; i < outdoorRouteTable.getChildCount(); i++){ // Starte bei zweiten Zeile (Index 1), da sich in der ersten Zeile nur die Spaltenüberschriften befinden
+                    TableRow row = (TableRow) outdoorRouteTable.getChildAt(i);
+                    TextView tvTimestamp = (TextView) row.getChildAt(4);
+                    if(tvTimestamp.getText().equals(getString(R.string.loc_data_empty))){
+                        tvTimestamp.setText(Long.toString(System.currentTimeMillis()));
+                        break;
+                    }
+                }
+                break;
         }
+    }
+
+    private void addNewWaypointToIndoorRoute(){
+        // Neue Zeile zur Tabelle hinzugügen ( = neuer Waypoint zur Indoor-Route)
+        TableLayout indoorRouteTable = getActivity().findViewById(R.id.routeIndoors);
+        TableRow newIndoorWPT = new TableRow(getActivity());
+        int newWPIDIndoor = indoorRouteTable.getChildCount(); // WPID = Nummer des Waypoints; 1 = A, 2 = B, usw.
+
+        TextView tvNewWPTIDIndoor = new TextView(getActivity()), tvTimestampIndoor = new TextView(getActivity());
+        tvNewWPTIDIndoor.setTextSize(12);
+        tvNewWPTIDIndoor.setGravity(Gravity.START);
+        tvNewWPTIDIndoor.setPadding(2,2,2,2);
+        tvNewWPTIDIndoor.setText(Integer.toString(newWPIDIndoor));
+        tvTimestampIndoor.setText(getString(R.string.loc_data_empty));
+        tvTimestampIndoor.setTextSize(12);
+        tvTimestampIndoor.setGravity(Gravity.START);
+        tvTimestampIndoor.setPadding(2,2,2,2);
+
+        Button bIndoor = new Button(getActivity());
+        bIndoor.setOnClickListener(getRmWPTButtonListener(bIndoor));
+        bIndoor.setText(getString(R.string.btn_rm_wpt));
+        bIndoor.setTextSize(12);
+        bIndoor.setMinWidth(Conversion.dpToPx(2, getActivity()));
+        bIndoor.setMinimumWidth(Conversion.dpToPx(2, getActivity()));
+        bIndoor.setMinHeight(Conversion.dpToPx(2, getActivity()));
+        bIndoor.setMinimumHeight(Conversion.dpToPx(2, getActivity()));
+                /*
+                EditTexts ermöglichen die Eingabe der Positionsdaten,
+                die Daten einer Beispielroute sind aber schon unterlegt (habe ich selbst erstellt, könnten wir auch so nutzen)
+                 */
+        EditText etLatIndoor = new EditText(getActivity()), etLongIndoor = new EditText(getActivity()), etAltIndoor = new EditText(getActivity());
+        String wpLatResTextIndoor = "wp" + newWPIDIndoor + "_lat_ind";
+        etLatIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etLatIndoor.setTextSize(12);
+        etLatIndoor.setGravity(Gravity.START);
+        etLatIndoor.setPadding(2,2,2,2);
+        etLatIndoor.setText(getString(getResources().getIdentifier(wpLatResTextIndoor, "string", getActivity().getPackageName())));
+        String wpLongResTextIndoor = "wp" + newWPIDIndoor + "_long_ind";
+        etLongIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etLongIndoor.setTextSize(12);
+        etLongIndoor.setGravity(Gravity.START);
+        etLongIndoor.setPadding(2,2,2,2);
+        etLongIndoor.setText(getString(getResources().getIdentifier(wpLongResTextIndoor, "string", getActivity().getPackageName())));
+        String wpAltResTextIndoor = "wp" + newWPIDIndoor + "_alt_ind";
+        etAltIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etAltIndoor.setTextSize(12);
+        etAltIndoor.setGravity(Gravity.START);
+        etAltIndoor.setPadding(2,2,2,2);
+        etAltIndoor.setText(getString(getResources().getIdentifier(wpAltResTextIndoor, "string", getActivity().getPackageName())));
+
+        newIndoorWPT.addView(tvNewWPTIDIndoor);
+        newIndoorWPT.addView(etLatIndoor);
+        newIndoorWPT.addView(etLongIndoor);
+        newIndoorWPT.addView(etAltIndoor);
+        newIndoorWPT.addView(tvTimestampIndoor);
+        newIndoorWPT.addView(bIndoor);
+        indoorRouteTable.addView(newIndoorWPT);
+    }
+
+    private void addNewWaypointToOutdoorRoute(){
+        // Neue Zeile zur Tabelle hinzugügen ( = neuer Waypoint zur Outdoor-Route)
+        TableLayout outdoorRouteTable = getActivity().findViewById(R.id.routeOutdoor);
+        TableRow newOutdoorWPT = new TableRow(getActivity());
+        int newWPIDOutdoor = outdoorRouteTable.getChildCount(); // WPID = Nummer des Waypoints; 1 = A, 2 = B, usw.
+
+        TextView tvNewWPTIDOutdoor = new TextView(getActivity()), tvTimestampOutdoor = new TextView(getActivity());
+        tvNewWPTIDOutdoor.setTextSize(12);
+        tvNewWPTIDOutdoor.setGravity(Gravity.START);
+        tvNewWPTIDOutdoor.setPadding(2,2,2,2);
+        tvNewWPTIDOutdoor.setText(Integer.toString(newWPIDOutdoor));
+        tvTimestampOutdoor.setText(getString(R.string.loc_data_empty));
+        tvTimestampOutdoor.setTextSize(12);
+        tvTimestampOutdoor.setGravity(Gravity.START);
+        tvTimestampOutdoor.setPadding(2,2,2,2);
+
+        Button bOutdoor = new Button(getActivity());
+        bOutdoor.setOnClickListener(getRmWPTButtonListener(bOutdoor));
+        bOutdoor.setText(getString(R.string.btn_rm_wpt));
+        bOutdoor.setTextSize(12);
+        bOutdoor.setMinWidth(Conversion.dpToPx(2, getActivity()));
+        bOutdoor.setMinimumWidth(Conversion.dpToPx(2, getActivity()));
+        bOutdoor.setMinHeight(Conversion.dpToPx(2, getActivity()));
+        bOutdoor.setMinimumHeight(Conversion.dpToPx(2, getActivity()));
+
+                /*
+                EditTexts ermöglichen die Eingabe der Positionsdaten,
+                die Daten einer Beispielroute sind aber schon unterlegt (habe ich selbst erstellt, könnten wir auch so nutzen)
+                 */
+        EditText etLatOutdoor = new EditText(getActivity()), etLongOutdoor = new EditText(getActivity()), etAltOutdoor = new EditText(getActivity());
+        String wpLatResTextOutdoor = "wp" + newWPIDOutdoor + "_lat_out";
+        etLatOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etLatOutdoor.setTextSize(12);
+        etLatOutdoor.setGravity(Gravity.START);
+        etLatOutdoor.setPadding(2,2,2,2);
+        etLatOutdoor.setText(getString(getResources().getIdentifier(wpLatResTextOutdoor, "string", getActivity().getPackageName())));
+        String wpLongResTextOutdoor = "wp" + newWPIDOutdoor + "_long_out";
+        etLongOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etLongOutdoor.setTextSize(12);
+        etLongOutdoor.setGravity(Gravity.START);
+        etLongOutdoor.setPadding(2,2,2,2);
+        etLongOutdoor.setText(getString(getResources().getIdentifier(wpLongResTextOutdoor, "string", getActivity().getPackageName())));
+        String wpAltResTextOutdoor = "wp" + newWPIDOutdoor + "_alt_out";
+        etAltOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
+        etAltOutdoor.setTextSize(12);
+        etAltOutdoor.setGravity(Gravity.START);
+        etAltOutdoor.setPadding(2,2,2,2);
+        etAltOutdoor.setText(getString(getResources().getIdentifier(wpAltResTextOutdoor, "string", getActivity().getPackageName())));
+
+        newOutdoorWPT.addView(tvNewWPTIDOutdoor);
+        newOutdoorWPT.addView(etLatOutdoor);
+        newOutdoorWPT.addView(etLongOutdoor);
+        newOutdoorWPT.addView(etAltOutdoor);
+        newOutdoorWPT.addView(tvTimestampOutdoor);
+        newOutdoorWPT.addView(bOutdoor);
+        outdoorRouteTable.addView(newOutdoorWPT);
     }
 
     private void startFusedLocationTracking(int locationRequestPriorityNr, String buttonText) throws NoSuchMethodException {
@@ -675,6 +837,22 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 return;
             }
         }
+    }
+
+    View.OnClickListener getRmWPTButtonListener(final Button button)  {
+        return new View.OnClickListener() {
+            public void onClick(View v) {
+                TableRow tr = (TableRow) v.getParent();
+                TableLayout tl = (TableLayout) tr.getParent();
+                int rowIndex = tl.indexOfChild(tr);
+                for(int i = rowIndex + 1; i < tl.getChildCount(); i++){
+                    TableRow row = (TableRow) tl.getChildAt(i);
+                    TextView wptNum = (TextView) row.getChildAt(0);
+                    wptNum.setText(Integer.toString(i - 1));
+                }
+                tl.removeView(tr);
+            }
+        };
     }
 
     private static String convertLatitude(double latitude) {
@@ -853,4 +1031,5 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 .build();
         mGoogleApiClient.connect();
     }
+
 }
