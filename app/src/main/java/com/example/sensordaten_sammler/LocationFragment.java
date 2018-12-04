@@ -126,8 +126,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
         svBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               sendDataRest("gps", latitudeGPS, longitudeGPS, altitudeGPS);
-               sendDataRest("netzwerklokalisierung", latitudeNetwork, longitudeNetwork, altitudeNetwork);
+                    sendDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS,
+                            latitudeNetwork, longitudeNetwork, altitudeNetwork, speedNetwork,accuracyNetwork,
+                            latitudeHighAcc, longitudeHighAcc, altitudeHighAcc, speedHighAcc, accuracyHighAcc,
+                            latitudeBalanced, longitudeBalanced, altitudeBalanced, speedBalanced,accuracyBalanced,
+                            latitudeLowPow, longitudeLowPow, altitudeLowPow, speedLowPow,accuracyLowPow,
+                            latitudeNoPow, longitudeNoPow, altitudeNoPow, speedNoPow, accuracyNoPow);
             }
         });
     }
@@ -991,20 +995,47 @@ public class LocationFragment extends Fragment implements LocationListener, View
         return text;
     }
 
-    private void sendDataRest(String locMethod, double ... params){
+    private void sendDataRest(double ... params){
         JSONObject locData = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         try{
-            locData.put("Latitude", params[0]);
-            locData.put("Longitude", params[1]);
-            locData.put("Hoehe", params[2]);
+            locData.put("latitudeGPS", params[0]);
+            locData.put("longitudeGPS", params[1]);
+            locData.put("altitudeGPS", params[2]);
+            locData.put("speedGPS", params[3]);
+            locData.put("accuracyGPS", params[4]);
+            locData.put("latitudeNetwork", params[5]);
+            locData.put("longitudeNetwork", params[6]);
+            locData.put("altitudeNetwork", params[7]);
+            locData.put("speedNetwork", params[8]);
+            locData.put("accuracyNetwork", params[9]);
+            locData.put("latitudeHighAcc", params[10]);
+            locData.put("longitudeHighAcc", params[11]);
+            locData.put("altitudeHighAcc", params[12]);
+            locData.put("speedHighAcc", params[13]);
+            locData.put("accuracyHighAcc", params[14]);
+            locData.put("latitudeBalanced", params[15]);
+            locData.put("longitudeBalanced", params[16]);
+            locData.put("altitudeBalanced", params[17]);
+            locData.put("speedBalanced", params[18]);
+            locData.put("accuracyBalanced", params[19]);
+            locData.put("latitudeLowPow", params[20]);
+            locData.put("longitudeLowPow", params[21]);
+            locData.put("altitudeLowPow", params[22]);
+            locData.put("speedLowPow", params[23]);
+            locData.put("accuracyLowPow", params[24]);
+            locData.put("latitudeNoPow", params[25]);
+            locData.put("longitudeNoPow", params[26]);
+            locData.put("altitudeNoPow", params[27]);
+            locData.put("speedNoPow", params[28]);
+            locData.put("accuracyNoPow", params[29]);
             locData.put("session_id", Session.getID());
             jsonArray.put(locData);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
-        new ConnectionRest().execute(locMethod,jsonArray.toString());
+        new ConnectionRest().execute("netzwerklokalisierung",jsonArray.toString());
         Log.d("RESTAPI",locData.toString());
     }
 
