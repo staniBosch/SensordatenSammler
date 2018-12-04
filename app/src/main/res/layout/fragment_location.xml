@@ -66,11 +66,21 @@
             android:textSize="15sp"
             android:padding="10sp" />
 
+        <EditText
+            android:id="@+id/etRouteLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/csvBoxLoc"
+            android:hint="@string/hint_csv_file_name"
+            android:padding="10sp"
+            android:textSize="15sp"
+            android:layout_marginTop="10sp"/>
+
         <Button
             android:id="@+id/bStartStopLoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/csvBoxLoc"
+            android:layout_below="@+id/etRouteLabel"
             android:drawableLeft="@drawable/ic_play_arrow"
             android:drawableStart="@drawable/ic_play_arrow"
             android:text="@string/start_listening_btn_loc"
@@ -634,7 +644,7 @@
             android:layout_below="@+id/tvRouteIndoorHeadline"
             android:id="@+id/routeIndoors"
             android:stretchColumns="*"
-            android:shrinkColumns="1,2,3,4"
+            android:shrinkColumns="*"
             android:layout_marginTop="2sp">
 
             <TableRow
@@ -878,7 +888,7 @@
             android:layout_below="@+id/tvRouteOutdoorHeadline"
             android:id="@+id/routeOutdoor"
             android:stretchColumns="*"
-            android:shrinkColumns="1,2,3,4"
+            android:shrinkColumns="*"
             android:layout_marginTop="2sp">
 
             <TableRow

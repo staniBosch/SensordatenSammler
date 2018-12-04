@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
@@ -206,4 +208,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
     }
 
+    public static boolean fileExists(Context context, String filename) {
+        File file = context.getFileStreamPath(filename);
+        if(file == null || !file.exists()) {
+            return false;
+        }
+        return true;
+    }
 }

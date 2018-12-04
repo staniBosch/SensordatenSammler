@@ -43,6 +43,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -58,15 +59,18 @@ public class LocationFragment extends Fragment implements LocationListener, View
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
     Button startStopBtn, svBtn, choosedLocMethBtn, addWPIndoor, addWPOutdoor, svIndoorTS, svOutdoorTS;
-    EditText timeIntervMs, posChangeInM, fastesTimeIntervMs;
+    EditText timeIntervMs, posChangeInM, fastesTimeIntervMs, etRouteLabel;
     TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc, tvAccHighAcc
             , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced, tvAccBalanced
             ,tvLatLowPow, tvLongLowPow, tvAltLowPow, tvSpeedLowPow, tvAccLowPow
             ,tvLatNoPow, tvLongNoPow, tvAltNoPow, tvSpeedNoPow, tvAccNoPow
             ,tvLatGPS, tvLongGPS, tvAltGPS, tvSpeedGPS, tvAccGPS
             ,tvLatNetwork, tvLongNetwork, tvAltNetwork, tvSpeedNetwork, tvAccNetwork;
-    String fileNameGPS = "GPSFile.csv", fileNameNetwork = "NetworkFile.csv"
-            , fileNameHighAcc = "HighAccFile.csv", fileNameBalanced = "BalancedFile.csv", fileNameLowPow = "LowPowFile.csv", fileNameNoPow = "NoPowFile.csv";
+    String fileNameGPS = "GPSFile", fileNameNetwork = "NetworkFile"
+            , fileNameHighAcc = "HighAccFile", fileNameBalanced = "BalancedFile", fileNameLowPow = "LowPowFile", fileNameNoPow = "NoPowFile"
+            , fileNameGPSComplete = "GPSFile", fileNameNetworkComplete = "NetworkFile"
+            , fileNameHighAccComplete = "HighAccFile", fileNameBalancedComplete = "BalancedFile", fileNameLowPowComplete = "LowPowFile", fileNameNoPowComplete = "NoPowFile";
+    String GTWPSwithTSFileName;
     CheckBox csv;
     String[] listItems;
     boolean[] checkedItems;
@@ -80,6 +84,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallbackHighAcc, mLocationCallbackBalanced, mLocationCallbackLowPow, mLocationCallbackNoPow;
     GoogleApiClient mGoogleApiClient;
+
 
     @Nullable
     @Override
@@ -103,12 +108,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
         selectedItems = new ArrayList<>();
         listItems = getResources().getStringArray(R.array.loc_methods_items);
         checkedItems = new boolean[listItems.length];
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameGPS, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameNetwork, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameHighAcc, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameBalanced, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameLowPow, false);
-        saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ", Genauigkeit" + "\n", fileNameNoPow, false);
         return view;
     }
 
@@ -119,6 +118,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         timeIntervMs = view.findViewById(R.id.minIntervallTimeLoc);
         posChangeInM = view.findViewById(R.id.minPosChangeLocMan);
         fastesTimeIntervMs = view.findViewById(R.id.fastesIntervallTimeLoc);
+        etRouteLabel = view.findViewById(R.id.etRouteLabel);
         timeIntervMs.setVisibility(View.INVISIBLE);
         posChangeInM.setVisibility(View.INVISIBLE);
         fastesTimeIntervMs.setVisibility(View.INVISIBLE);
@@ -183,7 +183,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     tvAltGPS.setText(Double.toString(altitudeGPS));
                     tvSpeedGPS.setText(Float.toString(speedGPS));
                     if(csv.isChecked()) {
-                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeGPS + "," + speedGPS + "," + accuracyGPS + "\n", fileNameGPS, true);
+                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeGPS + "," + speedGPS + "," + accuracyGPS + "\n", fileNameGPSComplete, true);
                     }
                 }
             }
@@ -202,7 +202,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     tvAltNetwork.setText(Double.toString(altitudeNetwork));
                     tvSpeedNetwork.setText(Float.toString(speedNetwork));
                     if(csv.isChecked()) {
-                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNetwork + "," + speedNetwork + "," + accuracyNetwork + "\n", fileNameNetwork, true);
+                        saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNetwork + "," + speedNetwork + "," + accuracyNetwork + "\n", fileNameNetworkComplete, true);
                     }
                 }
             }
@@ -225,7 +225,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvSpeedHighAcc .setText(Float.toString(speedHighAcc ));
             tvAccHighAcc .setText(Float.toString(accuracyHighAcc ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeHighAcc + "," + speedHighAcc + "," + accuracyHighAcc + "\n", fileNameHighAcc, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeHighAcc + "," + speedHighAcc + "," + accuracyHighAcc + "\n", fileNameHighAccComplete, true);
             }
         }
     }
@@ -246,7 +246,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvSpeedBalanced .setText(Float.toString(speedBalanced ));
             tvAccBalanced .setText(Float.toString(accuracyBalanced ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeBalanced + "," + speedBalanced + "," + accuracyBalanced + "\n", fileNameBalanced, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeBalanced + "," + speedBalanced + "," + accuracyBalanced + "\n", fileNameBalancedComplete, true);
             }
         }
     }
@@ -267,7 +267,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvSpeedLowPow .setText(Float.toString(speedLowPow ));
             tvAccLowPow .setText(Float.toString(accuracyLowPow ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeLowPow + "," + speedLowPow + "," + accuracyLowPow + "\n", fileNameLowPow, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeLowPow + "," + speedLowPow + "," + accuracyLowPow + "\n", fileNameLowPowComplete, true);
             }
         }
     }
@@ -288,7 +288,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             tvSpeedNoPow .setText(Float.toString(speedNoPow ));
             tvAccNoPow .setText(Double.toString(accuracyNoPow ));
             if(csv.isChecked()) {
-                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNoPow + "," + speedNoPow + ", " + accuracyNoPow + "\n", fileNameNoPow, true);
+                saveFile(System.currentTimeMillis() + "," + lat + "," + lon + "," + altitudeNoPow + "," + speedNoPow + "," + accuracyNoPow + "\n", fileNameNoPowComplete, true);
             }
         }
     }
@@ -356,48 +356,48 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     String buttonText = startStopBtn.getText().toString();
                     if(selectedItems.contains(0)) {  // GPS_PROVIDER vom LocationManager ausgewählt
                         if (MainActivity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            if (timeIntervMs.getText().toString().equals("") || posChangeInM.getText().toString().equals("")) {
-                                Toast.makeText(getActivity(), "Es werden die Eingaben benötigt!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            try {
-                                timeInterv = Long.parseLong(timeIntervMs.getText().toString());
-                            } catch (NumberFormatException e) {
-                                Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            try {
-                                posDiff = Float.parseFloat(posChangeInM.getText().toString());
-                            } catch (NumberFormatException e) {
-                                Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
                             if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
+                                if (timeIntervMs.getText().toString().equals("") || posChangeInM.getText().toString().equals("") || etRouteLabel.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Es werden alle Eingaben benötigt!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                try {
+                                    timeInterv = Long.parseLong(timeIntervMs.getText().toString());
+                                } catch (NumberFormatException e) {
+                                    Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                try {
+                                    posDiff = Float.parseFloat(posChangeInM.getText().toString());
+                                } catch (NumberFormatException e) {
+                                    Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                fileNameGPSComplete = etRouteLabel.getText().toString() + fileNameGPS + ".csv";
+                                GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
+                                if(MainActivity.fileExists(getActivity(), fileNameGPSComplete) || MainActivity.fileExists(getActivity(), GTWPSwithTSFileName)){
+                                    Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ",Genauigkeit" + "\n", fileNameGPSComplete, false);
                                 startStopBtn.setText(getResources().getString(R.string.stop_listening_btn_loc));
                                 Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                                 startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                                 startButtonPressed = true;
-
                                 MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
-                                Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                                if (lastKnownLocation != null) {
-                                    double latitude = lastKnownLocation.getLatitude();
-                                    double longitude = lastKnownLocation.getLongitude();
-                                    double altitude = lastKnownLocation.getAltitude();
-
-                                    if (tvLatGPS != null)
-                                        tvLatGPS.setText(convertLatitude(latitude));
-                                    if (tvLongGPS != null)
-                                        tvLongGPS.setText(convertLongitude(longitude));
-                                    if (tvAltGPS != null)
-                                        tvAltGPS.setText(Double.toString(altitude));
-                                }
-                            }
-                            else {  // Benutzer hat Stop gedrückt
-                                MainActivity.locationManager.removeUpdates(this);
-                                startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
-                                Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
-                                startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+//                                Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//                                if (lastKnownLocation != null) {
+//                                    double latitude = lastKnownLocation.getLatitude();
+//                                    double longitude = lastKnownLocation.getLongitude();
+//                                    double altitude = lastKnownLocation.getAltitude();
+//
+//                                    if (tvLatGPS != null)
+//                                        tvLatGPS.setText(convertLatitude(latitude));
+//                                    if (tvLongGPS != null)
+//                                        tvLongGPS.setText(convertLongitude(longitude));
+//                                    if (tvAltGPS != null)
+//                                        tvAltGPS.setText(Double.toString(altitude));
+//                                }
                             }
 
                         } else {
@@ -407,47 +407,49 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     }
                     if(selectedItems.contains(1)) {  // NETWORK_PROVIDER vom LocationManager ausgewählt
                         if (MainActivity.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                            if (timeIntervMs.getText().toString().equals("") || posChangeInM.getText().toString().equals("")) {
-                                Toast.makeText(getActivity(), "Es werden die Eingaben benötigt!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            try {
-                                timeInterv = Long.parseLong(timeIntervMs.getText().toString());
-                            } catch (NumberFormatException e) {
-                                Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            try {
-                                posDiff = Float.parseFloat(posChangeInM.getText().toString());
-                            } catch (NumberFormatException e) {
-                                Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
                             if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
+                                if (timeIntervMs.getText().toString().equals("") || posChangeInM.getText().toString().equals("") || etRouteLabel.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Es werden alle Eingaben benötigt!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                try {
+                                    timeInterv = Long.parseLong(timeIntervMs.getText().toString());
+                                } catch (NumberFormatException e) {
+                                    Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                try {
+                                    posDiff = Float.parseFloat(posChangeInM.getText().toString());
+                                } catch (NumberFormatException e) {
+                                    Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                fileNameNetworkComplete = etRouteLabel.getText().toString() + fileNameNetwork + ".csv";
+                                GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
+                                if(MainActivity.fileExists(getActivity(), fileNameNetworkComplete) || MainActivity.fileExists(getActivity(), GTWPSwithTSFileName)){
+                                    Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ",Genauigkeit" + "\n", fileNameNetworkComplete, false);
                                 startStopBtn.setText(getResources().getString(R.string.stop_listening_btn_loc));
                                 Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                                 startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                                 startButtonPressed = true;
 
                                 MainActivity.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, timeInterv, posDiff, this);
-                                Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                                if (lastKnownLocation != null) {
-                                    double latitude = lastKnownLocation.getLatitude();
-                                    double longitude = lastKnownLocation.getLongitude();
-                                    double altitude = lastKnownLocation.getAltitude();
-
-                                    if (tvLatGPS != null)
-                                        tvLatGPS.setText(convertLatitude(latitude));
-                                    if (tvLongGPS != null)
-                                        tvLongGPS.setText(convertLongitude(longitude));
-                                    if (tvAltGPS != null)
-                                        tvAltGPS.setText(Double.toString(altitude));
-                                }
-                            } else {  // Benutzer hat Stop gedrückt
-                                MainActivity.locationManager.removeUpdates(this);
-                                startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
-                                Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
-                                startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+//                                Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//                                if (lastKnownLocation != null) {
+//                                    double latitude = lastKnownLocation.getLatitude();
+//                                    double longitude = lastKnownLocation.getLongitude();
+//                                    double altitude = lastKnownLocation.getAltitude();
+//
+//                                    if (tvLatNetwork != null)
+//                                        tvLatNetwork.setText(convertLatitude(latitude));
+//                                    if (tvLongNetwork != null)
+//                                        tvLongNetwork.setText(convertLongitude(longitude));
+//                                    if (tvAltNetwork != null)
+//                                        tvAltNetwork.setText(Double.toString(altitude));
+//                                }
                             }
 
                         } else {
@@ -482,6 +484,30 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         }
+                    }
+                    if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
+                        startStopBtn.setText(getResources().getString(R.string.stop_listening_btn_loc));
+                        Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
+                        startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        startButtonPressed = true;
+                        if(csv.isChecked()){
+                            GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
+                            saveFile("WP-Nr" + "," + "Zeit" + "," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + "\n", GTWPSwithTSFileName, false);
+                        }
+                    }
+                    else {  // Benutzer hat Stop gedrückt
+                        MainActivity.locationManager.removeUpdates(this);
+                        if(mLocationCallbackHighAcc != null)
+                            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackHighAcc);
+                        if(mLocationCallbackBalanced != null)
+                            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackBalanced);
+                        if(mLocationCallbackLowPow != null)
+                            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackLowPow);
+                        if(mLocationCallbackNoPow != null)
+                            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackNoPow);
+                        startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
+                        Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
+                        startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                     }
                 }
                 break;
@@ -588,25 +614,41 @@ public class LocationFragment extends Fragment implements LocationListener, View
 
             case R.id.saveIndoorTimestamp:
                 TableLayout indoorRouteTable = getActivity().findViewById(R.id.routeIndoors);
+                TableRow row = null;
                 for(int i = 1; i < indoorRouteTable.getChildCount(); i++){ // Starte bei zweiten Zeile (Index 1), da sich in der ersten Zeile nur die Spaltenüberschriften befinden
-                    TableRow row = (TableRow) indoorRouteTable.getChildAt(i);
+                    row = (TableRow) indoorRouteTable.getChildAt(i);
                     TextView tvTimestamp = (TextView) row.getChildAt(4);
                     if(tvTimestamp.getText().equals(getString(R.string.loc_data_empty))){
                         tvTimestamp.setText(Long.toString(System.currentTimeMillis()));
                         break;
                     }
                 }
+                TextView tvWPNr = (TextView) row.getChildAt(0);
+                EditText etLat = (EditText) row.getChildAt(1);
+                EditText etLong = (EditText) row.getChildAt(2);
+                EditText etAlt = (EditText) row.getChildAt(3);
+                if(csv.isChecked()) {
+                    saveFile( tvWPNr.getText().toString() + "," + System.currentTimeMillis() + "," + etLat.getText().toString() + "," + etLong.getText().toString() + "," + etAlt.getText().toString() + "\n", GTWPSwithTSFileName, true);
+                }
                 break;
 
             case R.id.saveOutdoorTimestamp:
                 TableLayout outdoorRouteTable = getActivity().findViewById(R.id.routeOutdoor);
+                TableRow rowOutdoors = null;
                 for(int i = 1; i < outdoorRouteTable.getChildCount(); i++){ // Starte bei zweiten Zeile (Index 1), da sich in der ersten Zeile nur die Spaltenüberschriften befinden
-                    TableRow row = (TableRow) outdoorRouteTable.getChildAt(i);
-                    TextView tvTimestamp = (TextView) row.getChildAt(4);
+                    rowOutdoors = (TableRow) outdoorRouteTable.getChildAt(i);
+                    TextView tvTimestamp = (TextView) rowOutdoors.getChildAt(4);
                     if(tvTimestamp.getText().equals(getString(R.string.loc_data_empty))){
                         tvTimestamp.setText(Long.toString(System.currentTimeMillis()));
                         break;
                     }
+                }
+                TextView tvWPNrOutdoors = (TextView) rowOutdoors.getChildAt(0);
+                EditText etLatOutdoors = (EditText) rowOutdoors.getChildAt(1);
+                EditText etLongOutdoors = (EditText) rowOutdoors.getChildAt(2);
+                EditText etAltOutdoors = (EditText) rowOutdoors.getChildAt(3);
+                if(csv.isChecked()) {
+                    saveFile( tvWPNrOutdoors.getText().toString() + "," + System.currentTimeMillis() + "," + etLatOutdoors.getText().toString() + "," + etLongOutdoors.getText().toString() + "," + etAltOutdoors.getText().toString() + "\n", GTWPSwithTSFileName, true);
                 }
                 break;
         }
@@ -641,24 +683,32 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 die Daten einer Beispielroute sind aber schon unterlegt (habe ich selbst erstellt, könnten wir auch so nutzen)
                  */
         EditText etLatIndoor = new EditText(getActivity()), etLongIndoor = new EditText(getActivity()), etAltIndoor = new EditText(getActivity());
-        String wpLatResTextIndoor = "wp" + newWPIDIndoor + "_lat_ind";
+        if(newWPIDIndoor < 9){
+            String wpLatResTextIndoor = "wp" + newWPIDIndoor + "_lat_ind";
+            etLatIndoor.setText(getString(getResources().getIdentifier(wpLatResTextIndoor, "string", getActivity().getPackageName())));
+        }
         etLatIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etLatIndoor.setTextSize(12);
         etLatIndoor.setGravity(Gravity.START);
         etLatIndoor.setPadding(2,2,2,2);
-        etLatIndoor.setText(getString(getResources().getIdentifier(wpLatResTextIndoor, "string", getActivity().getPackageName())));
-        String wpLongResTextIndoor = "wp" + newWPIDIndoor + "_long_ind";
+
+        if(newWPIDIndoor < 9){
+            String wpLongResTextIndoor = "wp" + newWPIDIndoor + "_long_ind";
+            etLongIndoor.setText(getString(getResources().getIdentifier(wpLongResTextIndoor, "string", getActivity().getPackageName())));
+        }
         etLongIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etLongIndoor.setTextSize(12);
         etLongIndoor.setGravity(Gravity.START);
         etLongIndoor.setPadding(2,2,2,2);
-        etLongIndoor.setText(getString(getResources().getIdentifier(wpLongResTextIndoor, "string", getActivity().getPackageName())));
-        String wpAltResTextIndoor = "wp" + newWPIDIndoor + "_alt_ind";
+
+        if(newWPIDIndoor < 9){
+            String wpAltResTextIndoor = "wp" + newWPIDIndoor + "_alt_ind";
+            etAltIndoor.setText(getString(getResources().getIdentifier(wpAltResTextIndoor, "string", getActivity().getPackageName())));
+        }
         etAltIndoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etAltIndoor.setTextSize(12);
         etAltIndoor.setGravity(Gravity.START);
         etAltIndoor.setPadding(2,2,2,2);
-        etAltIndoor.setText(getString(getResources().getIdentifier(wpAltResTextIndoor, "string", getActivity().getPackageName())));
 
         newIndoorWPT.addView(tvNewWPTIDIndoor);
         newIndoorWPT.addView(etLatIndoor);
@@ -699,24 +749,32 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 die Daten einer Beispielroute sind aber schon unterlegt (habe ich selbst erstellt, könnten wir auch so nutzen)
                  */
         EditText etLatOutdoor = new EditText(getActivity()), etLongOutdoor = new EditText(getActivity()), etAltOutdoor = new EditText(getActivity());
-        String wpLatResTextOutdoor = "wp" + newWPIDOutdoor + "_lat_out";
+        if(newWPIDOutdoor < 9){
+            String wpLatResTextOutdoor = "wp" + newWPIDOutdoor + "_lat_out";
+            etLatOutdoor.setText(getString(getResources().getIdentifier(wpLatResTextOutdoor, "string", getActivity().getPackageName())));
+        }
         etLatOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etLatOutdoor.setTextSize(12);
         etLatOutdoor.setGravity(Gravity.START);
         etLatOutdoor.setPadding(2,2,2,2);
-        etLatOutdoor.setText(getString(getResources().getIdentifier(wpLatResTextOutdoor, "string", getActivity().getPackageName())));
-        String wpLongResTextOutdoor = "wp" + newWPIDOutdoor + "_long_out";
+
+        if(newWPIDOutdoor < 9){
+            String wpLongResTextOutdoor = "wp" + newWPIDOutdoor + "_long_out";
+            etLongOutdoor.setText(getString(getResources().getIdentifier(wpLongResTextOutdoor, "string", getActivity().getPackageName())));
+        }
         etLongOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etLongOutdoor.setTextSize(12);
         etLongOutdoor.setGravity(Gravity.START);
         etLongOutdoor.setPadding(2,2,2,2);
-        etLongOutdoor.setText(getString(getResources().getIdentifier(wpLongResTextOutdoor, "string", getActivity().getPackageName())));
-        String wpAltResTextOutdoor = "wp" + newWPIDOutdoor + "_alt_out";
+
+        if(newWPIDOutdoor < 9){
+            String wpAltResTextOutdoor = "wp" + newWPIDOutdoor + "_alt_out";
+            etAltOutdoor.setText(getString(getResources().getIdentifier(wpAltResTextOutdoor, "string", getActivity().getPackageName())));
+        }
         etAltOutdoor.setKeyListener(DigitsKeyListener.getInstance("0123456789.NESW° "));
         etAltOutdoor.setTextSize(12);
         etAltOutdoor.setGravity(Gravity.START);
         etAltOutdoor.setPadding(2,2,2,2);
-        etAltOutdoor.setText(getString(getResources().getIdentifier(wpAltResTextOutdoor, "string", getActivity().getPackageName())));
 
         newOutdoorWPT.addView(tvNewWPTIDOutdoor);
         newOutdoorWPT.addView(etLatOutdoor);
@@ -731,26 +789,35 @@ public class LocationFragment extends Fragment implements LocationListener, View
         LocationCallback callback = null;
         int priority = -1;
         LocationRequest newLocationRequest = new LocationRequest();
+        String fileNameComplete = null;
         switch(locationRequestPriorityNr){
             case LocationRequest.PRIORITY_HIGH_ACCURACY:
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY;
                 locationRequestHighAcc = newLocationRequest;
                 callback = mLocationCallbackHighAcc;
+                fileNameHighAccComplete = etRouteLabel.getText().toString() + fileNameHighAcc + ".csv";
+                fileNameComplete = fileNameHighAccComplete;
                 break;
             case LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY:
                 priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
                 locationRequestBalanced = newLocationRequest;
                 callback = mLocationCallbackBalanced;
+                fileNameBalancedComplete = etRouteLabel.getText().toString() + fileNameBalanced + ".csv";
+                fileNameComplete = fileNameBalancedComplete;
                 break;
             case LocationRequest.PRIORITY_LOW_POWER:
                 priority = LocationRequest.PRIORITY_LOW_POWER;
                 locationRequestLowPower = newLocationRequest;
                 callback = mLocationCallbackLowPow;
+                fileNameLowPowComplete = etRouteLabel.getText().toString() + fileNameLowPow + ".csv";
+                fileNameComplete = fileNameLowPowComplete;
                 break;
             case LocationRequest.PRIORITY_NO_POWER:
                 priority = LocationRequest.PRIORITY_NO_POWER;
                 locationRequestNoPower = newLocationRequest;
                 callback = mLocationCallbackNoPow;
+                fileNameNoPowComplete = etRouteLabel.getText().toString() + fileNameNoPow + ".csv";
+                fileNameComplete = fileNameNoPowComplete;
                 break;
         }
         if(priority == -1){
@@ -762,27 +829,34 @@ public class LocationFragment extends Fragment implements LocationListener, View
         } else {
             long timeInterv, fastesTimeInterv;
             if (MainActivity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && MainActivity.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                if (timeIntervMs.getText().toString().equals("") || fastesTimeIntervMs.getText().toString().equals("")) {
-                    Toast.makeText(getActivity(), "Es werden die Eingaben benötigt!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                try {
-                    timeInterv = Long.parseLong(timeIntervMs.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                try {
-                    fastesTimeInterv = Long.parseLong(fastesTimeIntervMs.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
-                    startStopBtn.setText(getResources().getString(R.string.stop_listening_btn_loc));
-                    Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
-                    startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
-                    startButtonPressed = true;
+                    if (timeIntervMs.getText().toString().equals("") || fastesTimeIntervMs.getText().toString().equals("") || etRouteLabel.getText().toString().equals("")) {
+                        Toast.makeText(getActivity(), "Es werden alle Eingaben benötigt!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        timeInterv = Long.parseLong(timeIntervMs.getText().toString());
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        fastesTimeInterv = Long.parseLong(fastesTimeIntervMs.getText().toString());
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
+                    if(MainActivity.fileExists(getActivity(), fileNameComplete) || MainActivity.fileExists(getActivity(), GTWPSwithTSFileName)){
+                        Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if(fileNameComplete == null){
+                        Toast.makeText(getActivity(), "Fehler beim Starten einer FusedLocation-Positionierungsvariante", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ",Genauigkeit" + "\n", fileNameComplete, false);
 
                     newLocationRequest.setPriority(priority);
                     newLocationRequest.setInterval(timeInterv);
@@ -825,11 +899,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             mLocationCallbackNoPow = callback;
                             break;
                     }
-                } else {  // Benutzer hat Stop gedrückt
-                    LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(callback);
-                    startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
-                    Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
-                    startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                 }
 
             } else {
