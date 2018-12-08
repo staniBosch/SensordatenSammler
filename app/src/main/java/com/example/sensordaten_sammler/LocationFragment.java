@@ -49,6 +49,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,6 +86,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallbackHighAcc, mLocationCallbackBalanced, mLocationCallbackLowPow, mLocationCallbackNoPow;
     GoogleApiClient mGoogleApiClient;
+    Timer timer;
 
 
     @Nullable
@@ -126,7 +129,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         svBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    sendDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS,
+                    sendDataRest("netzwerklokalisierung",System.currentTimeMillis(),latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS,
                             latitudeNetwork, longitudeNetwork, altitudeNetwork, speedNetwork,accuracyNetwork,
                             latitudeHighAcc, longitudeHighAcc, altitudeHighAcc, speedHighAcc, accuracyHighAcc,
                             latitudeBalanced, longitudeBalanced, altitudeBalanced, speedBalanced,accuracyBalanced,
@@ -494,6 +497,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         startButtonPressed = true;
+                        sendDataRestThread();
                         if(csv.isChecked()){
                             GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
                             saveFile("WP-Nr" + "," + "Zeit" + "," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + "\n", GTWPSwithTSFileName, false);
@@ -509,6 +513,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackLowPow);
                         if(mLocationCallbackNoPow != null)
                             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackNoPow);
+                        sendDataRestThread();
                         startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
@@ -631,6 +636,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 EditText etLat = (EditText) row.getChildAt(1);
                 EditText etLong = (EditText) row.getChildAt(2);
                 EditText etAlt = (EditText) row.getChildAt(3);
+                sendDataRest("waypoint",System.currentTimeMillis(),1,etLat.getText().toString(),etLong.getText().toString(),etAlt.getText().toString());
                 if(csv.isChecked()) {
                     saveFile( tvWPNr.getText().toString() + "," + System.currentTimeMillis() + "," + etLat.getText().toString() + "," + etLong.getText().toString() + "," + etAlt.getText().toString() + "\n", GTWPSwithTSFileName, true);
                 }
@@ -651,6 +657,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 EditText etLatOutdoors = (EditText) rowOutdoors.getChildAt(1);
                 EditText etLongOutdoors = (EditText) rowOutdoors.getChildAt(2);
                 EditText etAltOutdoors = (EditText) rowOutdoors.getChildAt(3);
+                sendDataRest("waypoint",System.currentTimeMillis(),0,etLatOutdoors.getText().toString(),etLongOutdoors.getText().toString(),etAltOutdoors.getText().toString());
                 if(csv.isChecked()) {
                     saveFile( tvWPNrOutdoors.getText().toString() + "," + System.currentTimeMillis() + "," + etLatOutdoors.getText().toString() + "," + etLongOutdoors.getText().toString() + "," + etAltOutdoors.getText().toString() + "\n", GTWPSwithTSFileName, true);
                 }
@@ -1012,6 +1019,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+        timer.cancel();
     }
 
     @Override
@@ -1020,6 +1028,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         Log.d("test", "\ninOnDestroy 1\n");
         MainActivity.locationManager.removeUpdates(this);
         String buttonText = startStopBtn.getText().toString();
+        timer.cancel();
         if (buttonText.compareTo(getResources().getString(R.string.stop_listening_btn_loc)) == 0) {
             startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
@@ -1064,7 +1073,27 @@ public class LocationFragment extends Fragment implements LocationListener, View
         return text;
     }
 
-    private void sendDataRest(double ... params){
+    private void sendDataRestThread(){
+        if((startStopBtn.getText().toString().compareTo(getResources().getString(R.string.stop_listening_btn_loc)) == 0)  && timer==null) {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    sendDataRest("netzwerklokalisierung",System.currentTimeMillis(),latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS,
+                            latitudeNetwork, longitudeNetwork, altitudeNetwork, speedNetwork,accuracyNetwork,
+                            latitudeHighAcc, longitudeHighAcc, altitudeHighAcc, speedHighAcc, accuracyHighAcc,
+                            latitudeBalanced, longitudeBalanced, altitudeBalanced, speedBalanced,accuracyBalanced,
+                            latitudeLowPow, longitudeLowPow, altitudeLowPow, speedLowPow,accuracyLowPow,
+                            latitudeNoPow, longitudeNoPow, altitudeNoPow, speedNoPow, accuracyNoPow);
+                }
+            }, 0, 1000);
+        } else {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    private void sendDataRest(String path,Long timestamp, double ... params){
         JSONObject locData = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         try{
@@ -1098,14 +1127,31 @@ public class LocationFragment extends Fragment implements LocationListener, View
             locData.put("altitudeNoPow", params[27]);
             locData.put("speedNoPow", params[28]);
             locData.put("accuracyNoPow", params[29]);
+            locData.put("timestamp", timestamp);
             locData.put("session_id", Session.getID());
             jsonArray.put(locData);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
-        new ConnectionRest().execute("netzwerklokalisierung",jsonArray.toString());
-        Log.d("RESTAPI",locData.toString());
+        new ConnectionRest().execute(path,jsonArray.toString());
+    }
+
+    private void sendDataRest(String path,Long timestamp, int i,String ... params){
+        JSONObject locData = new JSONObject();
+        try{
+            locData.put("latitude", params[0]);
+            locData.put("longitude", params[1]);
+            locData.put("altitude", params[2]);
+            locData.put("timestamp", timestamp);
+            locData.put("session_id", Session.getID());
+            locData.put("indoor", i);
+
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute(path,locData.toString());
     }
 
     @Override
