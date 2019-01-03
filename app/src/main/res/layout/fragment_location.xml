@@ -57,12 +57,45 @@
             android:textSize="15sp"
             android:layout_marginTop="10sp"/>
 
+        <EditText
+            android:id="@+id/distThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fastesIntervallTimeLoc"
+            android:digits="0123456789"
+            android:hint="@string/label_dist_threshold_Loc"
+            android:inputType="numberDecimal"
+            android:padding="10sp"
+            android:textSize="15sp"
+            android:layout_marginTop="10sp"/>
+
+        <EditText
+            android:id="@+id/maxSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distThreshold"
+            android:digits="0123456789"
+            android:hint="@string/label_max_speed_Loc"
+            android:inputType="numberDecimal"
+            android:padding="10sp"
+            android:textSize="15sp"
+            android:layout_marginTop="10sp"/>
+
         <CheckBox
             android:id="@+id/csvBoxLoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fastesIntervallTimeLoc"
+            android:layout_below="@id/maxSpeed"
             android:text="@string/local_storage_checkbox"
+            android:textSize="15sp"
+            android:padding="10sp" />
+
+        <CheckBox
+            android:id="@+id/checkBoxAccele"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/csvBoxLoc"
+            android:text="@string/accele_loc_checkbox"
             android:textSize="15sp"
             android:padding="10sp" />
 
@@ -70,7 +103,7 @@
             android:id="@+id/etRouteLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/csvBoxLoc"
+            android:layout_below="@id/checkBoxAccele"
             android:hint="@string/hint_csv_file_name"
             android:padding="10sp"
             android:textSize="15sp"

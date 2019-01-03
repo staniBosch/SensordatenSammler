@@ -58,7 +58,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     Button startStopBtnAcc;
     Spinner sampleFreqSpinnerAcc;
-    TextView tvXVal, tvYVal, tvZVal, tvAllDetailsAcc, tvCsvContent;
+    TextView tvXVal, tvYVal, tvZVal, tvAbsoluteVal, tvAllDetailsAcc, tvCsvContent;
     Sensor sensorToBeListenedTo;
     GraphView graphAcc, graphAcc2;
     CheckBox csvAcc;
@@ -94,9 +94,11 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         tvXVal = getActivity().findViewById(R.id.xValueAcc);
         tvYVal = getActivity().findViewById(R.id.yValueAcc);
         tvZVal = getActivity().findViewById(R.id.zValueAcc);
+        tvAbsoluteVal = getActivity().findViewById(R.id.absValueAcc);
         tvXVal.setText(getString(R.string.x_valAccEmpty, "--"));
         tvYVal.setText(getString(R.string.y_valAccEmpty, "--"));
         tvZVal.setText(getString(R.string.z_valAccEmpty, "--"));
+        tvAbsoluteVal.setText(getString(R.string.abs_valAccEmpty, "--"));
         sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         if(sensorToBeListenedTo != null){
             if(Build.VERSION.SDK_INT >= 24)
@@ -220,9 +222,35 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+//        double gX = event.values[0] / SensorManager.GRAVITY_EARTH;
+//        double gY = event.values[1] / SensorManager.GRAVITY_EARTH;
+//        double gZ = event.values[2] / SensorManager.GRAVITY_EARTH;
+//
+//        // gForce will be close to 1 when there is no movement.
+//        double gForce = Math.sqrt(gX * gX + gY * gY + gZ * gZ);
+
+//        if (gForce > SHAKE_THRESHOLD_GRAVITY) {
+//            final long now = System.currentTimeMillis();
+//            // ignore shake events too close to each other (500ms)
+//            if (mShakeTimestamp + SHAKE_SLOP_TIME_MS > now) {
+//                return;
+//            }
+//
+//            // reset the shake count after 3 seconds of no shakes
+//            if (mShakeTimestamp + SHAKE_COUNT_RESET_TIME_MS < now) {
+//                mShakeCount = 0;
+//            }
+//
+//            mShakeTimestamp = now;
+//            mShakeCount++;
+//
+//            mListener.onShake(mShakeCount);
+//        }
         tvXVal.setText(getString(R.string.x_valAcc, event.values[0]));
         tvYVal.setText(getString(R.string.y_valAcc, event.values[1]));
         tvZVal.setText(getString(R.string.z_valAcc, event.values[2]));
+        tvAbsoluteVal.setText(getString(R.string.abs_valAcc, absolute));
         seriesX.appendData(new DataPoint(graphLastXValTime, event.values[0] ), true, 1000);
         seriesY.appendData(new DataPoint(graphLastXValTime, event.values[1] ), true, 1000);
         seriesZ.appendData(new DataPoint(graphLastXValTime, event.values[2] ), true, 1000);

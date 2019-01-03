@@ -31,6 +31,7 @@
     <string name="x_valAcc">x :  %1$f m/s²</string>
     <string name="y_valAcc">y :  %1$f m/s²</string>
     <string name="z_valAcc">z :  %1$f m/s²</string>
+    <string name="abs_valAcc">z :  %1$f </string>
     <string name="x_valGyro">x :  %1$f rad/s</string>
     <string name="y_valGyro">y :  %1$f rad/s</string>
     <string name="z_valGyro">z :  %1$f rad/s</string>
@@ -58,6 +59,7 @@
     <string name="x_valAccEmpty">x :  %1$s m/s²</string>
     <string name="y_valAccEmpty">y :  %1$s m/s²</string>
     <string name="z_valAccEmpty">z :  %1$s m/s²</string>
+    <string name="abs_valAccEmpty">Abs :  %1$s </string>
     <string name="x_valGyroEmpty">x :  %1$s rad/s</string>
     <string name="y_valGyroEmpty">y :  %1$s rad/s</string>
     <string name="z_valGyroEmpty">z :  %1$s rad/s</string>
@@ -154,13 +156,13 @@
     <string name="wp3_alt_ind">127.3m</string>
 
     <string name="wp4">4</string>
-    <string name="wp4_lat_ind">51.44763°N</string>
-    <string name="wp4_long_ind">7.27183°E</string>
+    <string name="wp4_lat_ind">51.44749°N</string>
+    <string name="wp4_long_ind">7.27138°E</string>
     <string name="wp4_alt_ind">127.2m</string>
 
     <string name="wp5">5</string>
-    <string name="wp5_lat_ind">51.44732°N</string>
-    <string name="wp5_long_ind">7.27209°E</string>
+    <string name="wp5_lat_ind">51.44718°N</string>
+    <string name="wp5_long_ind">7.27167°E</string>
     <string name="wp5_alt_ind">126.4m</string>
 
     <string name="wp6">6</string>
@@ -217,4 +219,7 @@
     <string name="t_head_rm_wpt">Remove</string>
     <string name="btn_sv_ts">Stamp the time</string>
     <string name="hint_csv_file_name">Routenbezeichnung</string>
+    <string name="label_dist_threshold_Loc">Distanzschwelle in m</string>
+    <string name="label_max_speed_Loc">Maximalgeschwindigkeit in m/s</string>
+    <string name="accele_loc_checkbox">Accelerometer zur Stillstandsmessung</string>
 </resources>

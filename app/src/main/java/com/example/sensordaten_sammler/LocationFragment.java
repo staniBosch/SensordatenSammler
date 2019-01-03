@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,6 +22,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -49,17 +55,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LocationFragment extends Fragment implements LocationListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
     Button startStopBtn, svBtn, choosedLocMethBtn, addWPIndoor, addWPOutdoor, svIndoorTS, svOutdoorTS;
-    EditText timeIntervMs, posChangeInM, fastesTimeIntervMs, etRouteLabel;
+    EditText timeIntervMs, posChangeInM, fastesTimeIntervMs, etRouteLabel, etDistThreshold, etMaxSpeed;
     TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc, tvAccHighAcc
             , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced, tvAccBalanced
             ,tvLatLowPow, tvLongLowPow, tvAltLowPow, tvSpeedLowPow, tvAccLowPow
@@ -71,7 +79,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             , fileNameGPSComplete = "GPSFile", fileNameNetworkComplete = "NetworkFile"
             , fileNameHighAccComplete = "HighAccFile", fileNameBalancedComplete = "BalancedFile", fileNameLowPowComplete = "LowPowFile", fileNameNoPowComplete = "NoPowFile";
     String GTWPSwithTSFileName;
-    CheckBox csv;
+    CheckBox csv, checkboxUseAccelerometer;
     String[] listItems;
     boolean[] checkedItems;
     ArrayList<Integer> selectedItems;
@@ -84,7 +92,10 @@ public class LocationFragment extends Fragment implements LocationListener, View
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallbackHighAcc, mLocationCallbackBalanced, mLocationCallbackLowPow, mLocationCallbackNoPow;
     GoogleApiClient mGoogleApiClient;
-
+    public Location lastLocationGPS;
+    float distThresholdInM, maxSpeed;
+    List<Double> accAbsolutesList;
+    boolean requestingLocationUpdates;
 
     @Nullable
     @Override
@@ -104,10 +115,13 @@ public class LocationFragment extends Fragment implements LocationListener, View
         addWPOutdoor.setOnClickListener(this);
         svBtn = view.findViewById(R.id.svbtnLocMan);
         csv = view.findViewById(R.id.csvBoxLoc);
+        checkboxUseAccelerometer = view.findViewById(R.id.checkBoxAccele);
         csv.setEnabled(true);
+        checkboxUseAccelerometer.setEnabled(false);
         selectedItems = new ArrayList<>();
         listItems = getResources().getStringArray(R.array.loc_methods_items);
         checkedItems = new boolean[listItems.length];
+        accAbsolutesList = new LinkedList<>();
         return view;
     }
 
@@ -119,9 +133,13 @@ public class LocationFragment extends Fragment implements LocationListener, View
         posChangeInM = view.findViewById(R.id.minPosChangeLocMan);
         fastesTimeIntervMs = view.findViewById(R.id.fastesIntervallTimeLoc);
         etRouteLabel = view.findViewById(R.id.etRouteLabel);
+        etDistThreshold = view.findViewById(R.id.distThreshold);
+        etMaxSpeed = view.findViewById(R.id.maxSpeed);
         timeIntervMs.setVisibility(View.INVISIBLE);
         posChangeInM.setVisibility(View.INVISIBLE);
         fastesTimeIntervMs.setVisibility(View.INVISIBLE);
+        etDistThreshold.setVisibility(View.INVISIBLE);
+        etMaxSpeed.setVisibility(View.INVISIBLE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         svBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +152,26 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             latitudeNoPow, longitudeNoPow, altitudeNoPow, speedNoPow, accuracyNoPow);
             }
         });
+        etDistThreshold.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if(s.length() != 0)
+                    checkboxUseAccelerometer.setEnabled(true);
+                else
+                    checkboxUseAccelerometer.setEnabled(false);
+            }
+        });
+
     }
 
     private void initTVs(View view){
@@ -170,14 +208,24 @@ public class LocationFragment extends Fragment implements LocationListener, View
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            if(location.getProvider().equalsIgnoreCase("gps")){
-                this.latitudeGPS = location.getLatitude();
-                this.longitudeGPS = location.getLongitude();
-                this.altitudeGPS = location.getAltitude();
-                this.speedGPS = location.getSpeed();
-                this.accuracyGPS = location.getAccuracy();
+    public void onLocationChanged(Location newestLocation) {
+        if (newestLocation != null) {
+            if(newestLocation.getProvider().equalsIgnoreCase("gps")){
+                this.latitudeGPS = newestLocation.getLatitude();
+                this.longitudeGPS = newestLocation.getLongitude();
+                this.altitudeGPS = newestLocation.getAltitude();
+                this.speedGPS = newestLocation.getSpeed();
+                this.accuracyGPS = newestLocation.getAccuracy();
+                // Nur Distanzschwellwert angegeben:
+                if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && etMaxSpeed.getText().toString().equalsIgnoreCase("")
+                        && (lastLocationGPS == null || lastLocationGPS.distanceTo(newestLocation) > distThresholdInM)){
+                    this.lastLocationGPS = newestLocation;
+                    sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                }
+                // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
+                else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
+                    sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                }
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeGPS);
                 String lon = convertLongitude(longitudeGPS);
@@ -191,12 +239,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     }
                 }
             }
-            else if(location.getProvider().equalsIgnoreCase("network")){
-                this.latitudeNetwork = location.getLatitude();
-                this.longitudeNetwork = location.getLongitude();
-                this.altitudeNetwork = location.getAltitude();
-                this.speedNetwork = location.getSpeed();
-                this.accuracyNetwork = location.getAccuracy();
+            else if(newestLocation.getProvider().equalsIgnoreCase("network")){
+                this.latitudeNetwork = newestLocation.getLatitude();
+                this.longitudeNetwork = newestLocation.getLongitude();
+                this.altitudeNetwork = newestLocation.getAltitude();
+                this.speedNetwork = newestLocation.getSpeed();
+                this.accuracyNetwork = newestLocation.getAccuracy();
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeNetwork);
                 String lon = convertLongitude(longitudeNetwork);
@@ -214,6 +262,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     }
 
     private void onLocationChangedHighAcc(Location location) {
+        Log.e("TEST", "8");
         this.latitudeHighAcc = location.getLatitude();
         this.longitudeHighAcc  = location.getLongitude();
         this.altitudeHighAcc  = location.getAltitude();
@@ -235,6 +284,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     }
 
     private void onLocationChangedBalanced(Location location) {
+        Log.e("TEST", "7");
         this.latitudeBalanced = location.getLatitude();
         this.longitudeBalanced  = location.getLongitude();
         this.altitudeBalanced  = location.getAltitude();
@@ -256,6 +306,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     }
 
     private void onLocationChangedLowPow(Location location) {
+        Log.e("TEST", "6");
         this.latitudeLowPow = location.getLatitude();
         this.longitudeLowPow  = location.getLongitude();
         this.altitudeLowPow  = location.getAltitude();
@@ -277,6 +328,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     }
 
     private void onLocationChangedNoPow(Location location) {
+        Log.e("TEST", "5");
         this.latitudeNoPow = location.getLatitude();
         this.longitudeNoPow  = location.getLongitude();
         this.altitudeNoPow = location.getAltitude();
@@ -355,27 +407,62 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         Toast.makeText(getActivity(), "Du hast kein Positionierungsverfahren ausgewählt!", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    long timeInterv, fastesTimeInterv;
-                    float posDiff;
+                    long timeInterv = 0, fastesTimeInterv;
+                    float posDiff = 0;
                     String buttonText = startStopBtn.getText().toString();
                     if(selectedItems.contains(0)) {  // GPS_PROVIDER vom LocationManager ausgewählt
                         if (MainActivity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                             if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
-                                if (timeIntervMs.getText().toString().equals("") || posChangeInM.getText().toString().equals("") || etRouteLabel.getText().toString().equals("")) {
-                                    Toast.makeText(getActivity(), "Es werden alle Eingaben benötigt!", Toast.LENGTH_SHORT).show();
+                                if (timeIntervMs.getText().toString().equals("") && posChangeInM.getText().toString().equals("")
+                                        && etRouteLabel.getText().toString().equals("") && etDistThreshold.getText().toString().equals("")&& etMaxSpeed.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Es werden Eingaben benötigt!", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
-                                try {
-                                    timeInterv = Long.parseLong(timeIntervMs.getText().toString());
-                                } catch (NumberFormatException e) {
-                                    Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
+                                if ((!timeIntervMs.getText().toString().equals("") || !posChangeInM.getText().toString().equals(""))
+                                        && (!etDistThreshold.getText().toString().equals("") || !etMaxSpeed.getText().toString().equals(""))) {
+                                    Toast.makeText(getActivity(), "Bitte mache entweder die Eingaben Positionsdifferenz + Zeitintervall " +
+                                            "ODER Distanzschwelle ODER Distanzschwelle + Maximalgeschwindigkeit!", Toast.LENGTH_LONG).show();
                                     return;
                                 }
-                                try {
-                                    posDiff = Float.parseFloat(posChangeInM.getText().toString());
-                                } catch (NumberFormatException e) {
-                                    Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
+                                if (!etMaxSpeed.getText().toString().equals("") && etDistThreshold.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Wenn Du eine Maximalgeschwindigkeit angegeben hast, benötigst Du auch eine Distanzschwelle!", Toast.LENGTH_SHORT).show();
                                     return;
+                                }
+                                if (etRouteLabel.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Du benötigst einen Namen für deine Route!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                if(etDistThreshold.getText().toString().equals("") && etMaxSpeed.getText().toString().equals("")){
+                                    try {
+                                        timeInterv = Long.parseLong(timeIntervMs.getText().toString());
+                                    } catch (NumberFormatException e) {
+                                        Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+                                if(etDistThreshold.getText().toString().equals("")&& etMaxSpeed.getText().toString().equals("")){
+                                    try {
+                                        posDiff = Float.parseFloat(posChangeInM.getText().toString());
+                                    } catch (NumberFormatException e) {
+                                        Toast.makeText(getActivity(), "Der Positionsunterschied muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+                                if(!etDistThreshold.getText().toString().equals("")){
+                                    try {
+                                        distThresholdInM = Float.parseFloat(etDistThreshold.getText().toString());
+                                    } catch (NumberFormatException e) {
+                                        Toast.makeText(getActivity(), "Fehler bei Konvertierung der Distanzschwelle!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+                                if(!etMaxSpeed.getText().toString().equals("")){
+                                    try {
+                                        maxSpeed = Float.parseFloat(etMaxSpeed.getText().toString());
+                                    } catch (NumberFormatException e) {
+                                        Toast.makeText(getActivity(), "Fehler bei Konvertierung der Maximalgeschwindigkeit!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                 }
                                 fileNameGPSComplete = etRouteLabel.getText().toString() + fileNameGPS + ".csv";
                                 GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
@@ -383,12 +470,43 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
+
                                 saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ",Genauigkeit" + "\n", fileNameGPSComplete, false);
                                 startStopBtn.setText(getResources().getString(R.string.stop_listening_btn_loc));
                                 Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                                 startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                                 startButtonPressed = true;
-                                MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
+                                // Distanzschwellwert angegeben:
+                                if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && etMaxSpeed.getText().toString().equalsIgnoreCase("")){
+                                    Log.e("TESTT", "Distanzschwellwert angegeben");
+                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                                    requestingLocationUpdates = true;
+                                    if(checkboxUseAccelerometer.isChecked() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null)){
+                                        Log.e("TESTT", "checkboxUseAccelerometer.isSelected() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null");
+                                        Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
+                                    }
+                                }
+                                // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
+                                else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
+//                                    long calcTimeInterv;
+//                                    float calcMinDist;
+                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, (long) (distThresholdInM / maxSpeed), distThresholdInM, this);
+                                }
+                                else{
+                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
+                                }
+//                                timeIntervMs.setEnable(false);
+                                timeIntervMs.setClickable(false);
+//                                posChangeInM.setEnable(false);
+                                posChangeInM.setClickable(false);
+//                                etDistThreshold.setEnable(false);
+                                etDistThreshold.setClickable(false);
+//                                etMaxSpeed.setEnable(false);
+                                etMaxSpeed.setClickable(false);
+//                                etRouteLabel.setEnable(false);
+                                etRouteLabel.setClickable(false);
+
 //                                Location lastKnownLocation = MainActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 //                                if (lastKnownLocation != null) {
 //                                    double latitude = lastKnownLocation.getLatitude();
@@ -463,28 +581,36 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     }
                     if(selectedItems.contains(2)) {  //  FusedLocationProvider mit Priorität HIGH_ACCURACY ausgewählt
                         try {
-                            startFusedLocationTracking(LocationRequest.PRIORITY_HIGH_ACCURACY, buttonText);
+                            boolean successfullyStarted = startFusedLocationTracking(LocationRequest.PRIORITY_HIGH_ACCURACY, buttonText);
+                            if(!successfullyStarted)
+                                return;
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         }
                     }
                     if(selectedItems.contains(3)) {  //  FusedLocationProvider mit Priorität BALANCED_POWER_ACCURACY ausgewählt
                         try {
-                            startFusedLocationTracking(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, buttonText);
+                            boolean successfullyStarted = startFusedLocationTracking(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, buttonText);
+                            if(!successfullyStarted)
+                                return;
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         }
                     }
                     if(selectedItems.contains(4)) {  //  FusedLocationProvider mit Priorität LOW_POWER ausgewählt
                         try {
-                            startFusedLocationTracking(LocationRequest.PRIORITY_LOW_POWER, buttonText);
+                            boolean successfullyStarted = startFusedLocationTracking(LocationRequest.PRIORITY_LOW_POWER, buttonText);
+                            if(!successfullyStarted)
+                                return;
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         }
                     }
                     if(selectedItems.contains(5)) {  //  FusedLocationProvider mit Priorität NO_POWER ausgewählt
                         try {
-                            startFusedLocationTracking(LocationRequest.PRIORITY_NO_POWER, buttonText);
+                            boolean successfullyStarted = startFusedLocationTracking(LocationRequest.PRIORITY_NO_POWER, buttonText);
+                            if(!successfullyStarted)
+                                return;
                         } catch (NoSuchMethodException e) {
                             e.printStackTrace();
                         }
@@ -500,18 +626,34 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         }
                     }
                     else {  // Benutzer hat Stop gedrückt
+                        Log.e("TEST", "21");
                         MainActivity.locationManager.removeUpdates(this);
-                        if(mLocationCallbackHighAcc != null)
+                        MainActivity.sensorManager.unregisterListener(this);
+                        if(mLocationCallbackHighAcc != null) {
+                            Log.e("TEST", "22");
                             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackHighAcc);
-                        if(mLocationCallbackBalanced != null)
+                        }
+                        if(mLocationCallbackBalanced != null) {
+                            Log.e("TEST", "23");
                             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackBalanced);
+                        }
                         if(mLocationCallbackLowPow != null)
-                            LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackLowPow);
+                         LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackLowPow);
                         if(mLocationCallbackNoPow != null)
                             LocationServices.getFusedLocationProviderClient(getActivity()).removeLocationUpdates(mLocationCallbackNoPow);
                         startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
+                        //                                timeIntervMs.setEnable(false);
+                        timeIntervMs.setClickable(true);
+//                                posChangeInM.setEnable(false);
+                        posChangeInM.setClickable(true);
+//                                etDistThreshold.setEnable(false);
+                        etDistThreshold.setClickable(true);
+//                                etMaxSpeed.setEnable(false);
+                        etMaxSpeed.setClickable(true);
+//                                etRouteLabel.setEnable(false);
+                        etRouteLabel.setClickable(true);
                     }
                 }
                 break;
@@ -540,10 +682,14 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             if(timeIntervMs.getVisibility() == View.INVISIBLE || posChangeInM.getVisibility() == View.INVISIBLE){
                                 timeIntervMs.setVisibility(View.VISIBLE);
                                 posChangeInM.setVisibility(View.VISIBLE);
+                                etDistThreshold.setVisibility(View.VISIBLE);
+                                etMaxSpeed.setVisibility(View.VISIBLE);
                             }
                         } else {
                             timeIntervMs.setVisibility(View.INVISIBLE);
                             posChangeInM.setVisibility(View.INVISIBLE);
+                            etDistThreshold.setVisibility(View.INVISIBLE);
+                            etMaxSpeed.setVisibility(View.INVISIBLE);
                         }
                         if(selectedItems.contains(2) || selectedItems.contains(3) || selectedItems.contains(4) || selectedItems.contains(5)) {  // Eine oder mehrere Prioritäten des FusedLocationProviders sind aufgewählt worden
                             if(fastesTimeIntervMs.getVisibility() == View.INVISIBLE || timeIntervMs.getVisibility() == View.INVISIBLE){
@@ -589,10 +735,14 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             if(timeIntervMs.getVisibility() == View.INVISIBLE || posChangeInM.getVisibility() == View.INVISIBLE){
                                 timeIntervMs.setVisibility(View.VISIBLE);
                                 posChangeInM.setVisibility(View.VISIBLE);
+                                etDistThreshold.setVisibility(View.VISIBLE);
+                                etMaxSpeed.setVisibility(View.VISIBLE);
                             }
                         } else {
                             timeIntervMs.setVisibility(View.INVISIBLE);
                             posChangeInM.setVisibility(View.INVISIBLE);
+                            etDistThreshold.setVisibility(View.INVISIBLE);
+                            etMaxSpeed.setVisibility(View.INVISIBLE);
                         }
                         if(selectedItems.contains(2) || selectedItems.contains(3) || selectedItems.contains(4) || selectedItems.contains(5)) {  // Eine oder mehrere Prioritäten des FusedLocationProviders sind aufgewählt worden
                             if(fastesTimeIntervMs.getVisibility() == View.INVISIBLE || timeIntervMs.getVisibility() == View.INVISIBLE){
@@ -789,7 +939,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         outdoorRouteTable.addView(newOutdoorWPT);
     }
 
-    private void startFusedLocationTracking(int locationRequestPriorityNr, String buttonText) throws NoSuchMethodException {
+    private boolean startFusedLocationTracking(int locationRequestPriorityNr, String buttonText) throws NoSuchMethodException {
         LocationCallback callback = null;
         int priority = -1;
         LocationRequest newLocationRequest = new LocationRequest();
@@ -826,7 +976,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         }
         if(priority == -1){
             Toast.makeText(getActivity(), "Fehler beim erkennen der LocationRequest Priority!", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestFineLocationPermission();
@@ -836,29 +986,29 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 if (buttonText.compareTo(getResources().getString(R.string.start_listening_btn_loc)) == 0) {  // Benutzer hat Start gedrückt
                     if (timeIntervMs.getText().toString().equals("") || fastesTimeIntervMs.getText().toString().equals("") || etRouteLabel.getText().toString().equals("")) {
                         Toast.makeText(getActivity(), "Es werden alle Eingaben benötigt!", Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
                     try {
                         timeInterv = Long.parseLong(timeIntervMs.getText().toString());
                     } catch (NumberFormatException e) {
                         Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss positiv und ganzzahlig sein!", Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
                     try {
                         fastesTimeInterv = Long.parseLong(fastesTimeIntervMs.getText().toString());
                     } catch (NumberFormatException e) {
                         Toast.makeText(getActivity(), "Zeitintervall-Eingabe muss eine positive Zahl sein!", Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
                     GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
                     if(MainActivity.fileExists(getActivity(), fileNameComplete) || MainActivity.fileExists(getActivity(), GTWPSwithTSFileName)){
                         Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
 
                     if(fileNameComplete == null){
                         Toast.makeText(getActivity(), "Fehler beim Starten einer FusedLocation-Positionierungsvariante", Toast.LENGTH_SHORT).show();
-                        return;
+                        return false;
                     }
                     saveFile("Zeit"+"," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + ",Speed" + ",Genauigkeit" + "\n", fileNameComplete, false);
 
@@ -874,15 +1024,19 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             }
                             switch(locationRequestPriorityNr){
                                 case LocationRequest.PRIORITY_HIGH_ACCURACY:
+                                    Log.e("TEST", "1");
                                     onLocationChangedHighAcc(locationResult.getLastLocation());
                                     break;
                                 case LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY:
+                                    Log.e("TEST", "2");
                                     onLocationChangedBalanced(locationResult.getLastLocation());
                                     break;
                                 case LocationRequest.PRIORITY_LOW_POWER:
+                                    Log.e("TEST", "3");
                                     onLocationChangedLowPow(locationResult.getLastLocation());
                                     break;
                                 case LocationRequest.PRIORITY_NO_POWER:
+                                    Log.e("TEST", "4");
                                     onLocationChangedNoPow(locationResult.getLastLocation());
                                     break;
                             }
@@ -907,9 +1061,10 @@ public class LocationFragment extends Fragment implements LocationListener, View
 
             } else {
                 Toast.makeText(getActivity(), "Dein Standortdienst ist nicht aktiviert!", Toast.LENGTH_SHORT).show();
-                return;
+                return false;
             }
         }
+        return true;
     }
 
     View.OnClickListener getRmWPTButtonListener(final Button button)  {
@@ -980,6 +1135,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         super.onPause();
         Log.d("test", "\ninOnPause 1\n");
         MainActivity.locationManager.removeUpdates(this);
+        MainActivity.sensorManager.unregisterListener(this);
         Log.d("test", "\ninOnPause 2\n");
         if(mLocationCallbackHighAcc != null && mFusedLocationClient != null) {
             Log.d("test", "\ninOnPause 3\n");
@@ -1019,6 +1175,31 @@ public class LocationFragment extends Fragment implements LocationListener, View
         super.onDestroy();
         Log.d("test", "\ninOnDestroy 1\n");
         MainActivity.locationManager.removeUpdates(this);
+        MainActivity.sensorManager.unregisterListener(this);
+        if(mLocationCallbackHighAcc != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 3\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackHighAcc);
+            Log.d("test", "\ninOnPause 4\n");
+            mLocationCallbackHighAcc = null;
+        }
+        if(mLocationCallbackBalanced != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 5\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackBalanced);
+            Log.d("test", "\ninOnPause 6\n");
+            mLocationCallbackBalanced = null;
+        }
+        if(mLocationCallbackLowPow != null && mFusedLocationClient != null) {
+            Log.d("test", "\ninOnPause 7\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackLowPow);
+            Log.d("test", "\ninOnPause 8\n");
+            mLocationCallbackLowPow = null;
+        }
+        if(mLocationCallbackNoPow != null && mFusedLocationClient != null){
+            Log.d("test", "\ninOnPause 9\n");
+            mFusedLocationClient.removeLocationUpdates(mLocationCallbackNoPow);
+            Log.d("test", "\ninOnPause 10\n");
+            mLocationCallbackNoPow = null;
+        }
         String buttonText = startStopBtn.getText().toString();
         if (buttonText.compareTo(getResources().getString(R.string.stop_listening_btn_loc)) == 0) {
             startStopBtn.setText(getResources().getString(R.string.start_listening_btn_loc));
@@ -1108,6 +1289,25 @@ public class LocationFragment extends Fragment implements LocationListener, View
         Log.d("RESTAPI",locData.toString());
     }
 
+    private void sendGPSDataRest(double ... params){
+        JSONObject locData = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        try{
+            locData.put("latitudeGPS", params[0]);
+            locData.put("longitudeGPS", params[1]);
+            locData.put("altitudeGPS", params[2]);
+            locData.put("speedGPS", params[3]);
+            locData.put("accuracyGPS", params[4]);
+            locData.put("session_id", Session.getID());
+            jsonArray.put(locData);
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("netzwerklokalisierung",jsonArray.toString());
+        Log.d("RESTAPI",locData.toString());
+    }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
@@ -1132,4 +1332,44 @@ public class LocationFragment extends Fragment implements LocationListener, View
         mGoogleApiClient.connect();
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+        accAbsolutesList.add(absolute);
+        boolean containsValGreaterThan10 = false;
+        Log.e("TESTT", "absolute: " + absolute);
+        int numOfValsGreaterThan10 = 0;
+        if(accAbsolutesList.size() > 30){
+            for (int i = 0; i < accAbsolutesList.size(); i++){
+                if(accAbsolutesList.get(i) > 10){
+                    containsValGreaterThan10 = true;
+                    numOfValsGreaterThan10++;
+                    if(numOfValsGreaterThan10 > 2)
+                        break;
+                }
+            }
+        }
+        if(!containsValGreaterThan10){
+            Log.e("TESTT", "!containsValGreaterThan10");
+            MainActivity.locationManager.removeUpdates(this);
+            requestingLocationUpdates = false;
+        }
+        if(!requestingLocationUpdates && numOfValsGreaterThan10 > 2){
+            Log.e("TESTT", "!requestingLocationUpdates und es gibt min 3 Vals die > 10 ist");
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestFineLocationPermission();
+            } else {
+                MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                requestingLocationUpdates = true;
+            }
+        }
+        if(accAbsolutesList.size() > 30){
+            accAbsolutesList.remove(0);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
