@@ -484,14 +484,14 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     if(checkboxUseAccelerometer.isChecked() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null)){
                                         Log.e("TESTT", "checkboxUseAccelerometer.isSelected() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null");
                                         Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
+                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, 400000);
                                     }
                                 }
                                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
                                 else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
 //                                    long calcTimeInterv;
 //                                    float calcMinDist;
-                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, (long) (distThresholdInM / maxSpeed), distThresholdInM, this);
+                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, (long) (distThresholdInM / maxSpeed) * 1000, distThresholdInM, this);
                                 }
                                 else{
                                     MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
