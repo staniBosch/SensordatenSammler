@@ -95,7 +95,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public Location lastLocationGPS;
     float distThresholdInM, maxSpeed;
     List<Double> accAbsolutesList;
-    boolean requestingLocationUpdates;
+    public boolean requestingLocationUpdates;
 
     @Nullable
     @Override
@@ -165,13 +165,31 @@ public class LocationFragment extends Fragment implements LocationListener, View
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                if(s.length() != 0)
+                if(s.length() != 0 && etMaxSpeed.getText().toString().equals(""))
                     checkboxUseAccelerometer.setEnabled(true);
                 else
                     checkboxUseAccelerometer.setEnabled(false);
             }
         });
+        etMaxSpeed.addTextChangedListener(new TextWatcher() {
 
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                if(s.length() != 0)
+                    checkboxUseAccelerometer.setEnabled(false);
+                else if(!etDistThreshold.getText().toString().equals(""))
+                    checkboxUseAccelerometer.setEnabled(true);
+            }
+        });
     }
 
     private void initTVs(View view){
@@ -221,10 +239,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         && (lastLocationGPS == null || lastLocationGPS.distanceTo(newestLocation) > distThresholdInM)){
                     this.lastLocationGPS = newestLocation;
                     sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                    Toast.makeText(getActivity(), "Positionsfix an Server gesendet!", Toast.LENGTH_SHORT).show();
                 }
                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
                 else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
                     sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                    Toast.makeText(getActivity(), "LocationUpdate empfangen!", Toast.LENGTH_SHORT).show();
                 }
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeGPS);
@@ -484,7 +504,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     if(checkboxUseAccelerometer.isChecked() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null)){
                                         Log.e("TESTT", "checkboxUseAccelerometer.isSelected() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null");
                                         Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, 400000);
+                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
                                     }
                                 }
                                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
@@ -620,6 +640,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         startButtonPressed = true;
+                        accAbsolutesList.clear();
                         if(csv.isChecked()){
                             GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
                             saveFile("WP-Nr" + "," + "Zeit" + "," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + "\n", GTWPSwithTSFileName, false);
@@ -1168,6 +1189,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+        accAbsolutesList.clear();
     }
 
     @Override
@@ -1206,6 +1228,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
             startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
+        accAbsolutesList.clear();
     }
 
     public void saveFile(String text, String fileName, boolean append)
@@ -1336,30 +1359,34 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public void onSensorChanged(SensorEvent event) {
         double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
         accAbsolutesList.add(absolute);
-        boolean containsValGreaterThan10 = false;
-        Log.e("TESTT", "absolute: " + absolute);
+        int standingStillCounter = 0;
+        boolean moving = true;
+//        Log.e("TESTT", "absolute: " + absolute);
         int numOfValsGreaterThan10 = 0;
         if(accAbsolutesList.size() > 30){
             for (int i = 0; i < accAbsolutesList.size(); i++){
-                if(accAbsolutesList.get(i) > 10){
-                    containsValGreaterThan10 = true;
-                    numOfValsGreaterThan10++;
-                    if(numOfValsGreaterThan10 > 2)
+                if(Math.abs(accAbsolutesList.get(i) - SensorManager.GRAVITY_EARTH) < 0.5){
+                    standingStillCounter++;
+                    if(standingStillCounter > 20){
+                        moving = false;
                         break;
+                    }
                 }
             }
         }
-        if(!containsValGreaterThan10){
-            Log.e("TESTT", "!containsValGreaterThan10");
+        if(!moving){
+            Log.e("TESTT", "!moving");
             MainActivity.locationManager.removeUpdates(this);
+            Toast.makeText(getActivity(), "Stillstand festgestellt, LocationUpdates unterbrochen!", Toast.LENGTH_SHORT).show();
             requestingLocationUpdates = false;
         }
-        if(!requestingLocationUpdates && numOfValsGreaterThan10 > 2){
-            Log.e("TESTT", "!requestingLocationUpdates und es gibt min 3 Vals die > 10 ist");
+        if(!requestingLocationUpdates && moving){
+            Log.e("TESTT", "!requestingLocationUpdates und moving");
             if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestFineLocationPermission();
             } else {
                 MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                Toast.makeText(getActivity(), "Stillstand wieder aufgehoben, LocationUpdates fortgesetzt!", Toast.LENGTH_SHORT).show();
                 requestingLocationUpdates = true;
             }
         }

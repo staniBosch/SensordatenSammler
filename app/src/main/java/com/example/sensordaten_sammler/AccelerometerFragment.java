@@ -1,17 +1,20 @@
 package com.example.sensordaten_sammler;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +53,8 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.sql.Time;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -69,6 +75,8 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
     double x1,y1,z1;
     Timer timer = new Timer();
     private static final String fileName = "ACCFile.csv";
+    List<Double> accAbsolutesList;
+    public boolean requestingLocationUpdates;
 
     @Nullable
     @Override
@@ -95,6 +103,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
         tvYVal = getActivity().findViewById(R.id.yValueAcc);
         tvZVal = getActivity().findViewById(R.id.zValueAcc);
         tvAbsoluteVal = getActivity().findViewById(R.id.absValueAcc);
+        accAbsolutesList = new LinkedList<>();
         tvXVal.setText(getString(R.string.x_valAccEmpty, "--"));
         tvYVal.setText(getString(R.string.y_valAccEmpty, "--"));
         tvZVal.setText(getString(R.string.z_valAccEmpty, "--"));
@@ -222,7 +231,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+//        double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
 //        double gX = event.values[0] / SensorManager.GRAVITY_EARTH;
 //        double gY = event.values[1] / SensorManager.GRAVITY_EARTH;
 //        double gZ = event.values[2] / SensorManager.GRAVITY_EARTH;
@@ -247,6 +256,41 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
 //
 //            mListener.onShake(mShakeCount);
 //        }
+        double absolute = Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+        accAbsolutesList.add(absolute);
+        int standingStillCounter = 0;
+        boolean moving = true;
+//        Log.e("TESTT", "absolute: " + absolute);
+        int numOfValsGreaterThan10 = 0;
+        if(accAbsolutesList.size() > 30){
+            for (int i = 0; i < accAbsolutesList.size(); i++){
+                if(Math.abs(accAbsolutesList.get(i) - SensorManager.GRAVITY_EARTH) < 0.5){
+                    standingStillCounter++;
+                    if(standingStillCounter > 20){
+                        moving = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if(!moving){
+            Log.e("TESTT", "!moving");
+            Toast.makeText(getActivity(), "Stillstand festgestellt!", Toast.LENGTH_SHORT).show();
+            requestingLocationUpdates = false;
+        }
+        if(!requestingLocationUpdates && moving){
+            Log.e("TESTT", "!requestingLocationUpdates und moving");
+//            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                requestFineLocationPermission();
+//            } else {
+//                MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            Toast.makeText(getActivity(), "Stillstand wieder aufgehoben", Toast.LENGTH_SHORT).show();
+                requestingLocationUpdates = true;
+//            }
+        }
+        if(accAbsolutesList.size() > 30){
+            accAbsolutesList.remove(0);
+        }
         tvXVal.setText(getString(R.string.x_valAcc, event.values[0]));
         tvYVal.setText(getString(R.string.y_valAcc, event.values[1]));
         tvZVal.setText(getString(R.string.z_valAcc, event.values[2]));
@@ -341,6 +385,7 @@ public class AccelerometerFragment extends Fragment implements SensorEventListen
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_play_arrow);
                         startStopBtnAcc.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         saveswitch.setChecked(false);
+                        accAbsolutesList.clear();
                         if(csvAcc.isChecked()) {
                             Toast.makeText(getActivity(), "Datei-Speicherort: " + getActivity().getFilesDir() + "/" + fileName, Toast.LENGTH_LONG).show();
                             tvCsvContent.setText(getFileContent(fileName));
