@@ -481,7 +481,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     }
                                 }
                                 fileNameGPSComplete = etRouteLabel.getText().toString() + fileNameGPS + ".csv";
-                                GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
+                                GTWPSwithTSFileName = etRouteLabel.getText().toString()+ Session.getID() + "GTWPSwithTS" + ".csv";
                                 if(MainActivity.fileExists(getActivity(), fileNameGPSComplete) || MainActivity.fileExists(getActivity(), GTWPSwithTSFileName)){
                                     Toast.makeText(getActivity(), "Der Routenname existiert bereits, bitte ändere die Bezeichnung der Route", Toast.LENGTH_SHORT).show();
                                     return;
