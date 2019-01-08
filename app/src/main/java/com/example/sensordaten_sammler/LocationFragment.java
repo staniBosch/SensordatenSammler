@@ -608,6 +608,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         Drawable img = getContext().getResources().getDrawable(R.drawable.ic_stop);
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         startButtonPressed = true;
+                        createRouteVersuch();
                         if(csv.isChecked()){
                             GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
                             saveFile("WP-Nr" + "," + "Zeit" + "," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + "\n", GTWPSwithTSFileName, false);
@@ -777,19 +778,18 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     //send timestamp to server
                     JSONObject obj = new JSONObject();
                     try{
-                        obj.put("latitude", Double.parseDouble(etLat.toString()));
-                        obj.put("longitude", Double.parseDouble(etLong.toString()));
-                        obj.put("altitude", Double.parseDouble(etAlt.toString()));
-                        obj.put("messwerteroute_name", GTWPSwithTSFileName);
+                        Log.d("TESTXXX", etLat.getText().toString());
+                        obj.put("latitude", Double.parseDouble(etLat.getText().toString()));
+                        obj.put("longitude", Double.parseDouble(etLong.getText().toString()));
+                        obj.put("altitude", Double.parseDouble(etAlt.getText().toString()));
+                        obj.put("messwerteroute_name", etRouteLabel.getText().toString());
                         obj.put("timestamp", Long.toString(timestamp));
                         obj.put("session_id", Session.getID());
                     }
                     catch (JSONException e){
                         e.printStackTrace();
                     }
-                    new ConnectionRest(
-                            (json)->Log.d("REST_POST", obj.toString())
-                    ).execute("messwerte",obj.toString());
+                    new ConnectionRest().execute("messwerte",obj.toString());
                 }
                 break;
 
@@ -1252,7 +1252,21 @@ public class LocationFragment extends Fragment implements LocationListener, View
         return text;
     }
 
+    private void createRouteVersuch(){
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("name", etRouteLabel.getText().toString());
+            obj.put("route_template", spinnerRoute.getSelectedItem().toString());
+            obj.put("session_id", Session.getID());
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("messwerteroute", obj.toString());
+    }
+
     private void sendGPSDataRest(double ... params){
+        Log.d("TESTXXX","drin");
         JSONObject locData = new JSONObject();
         try{
             locData.put("latitude", params[0]);
@@ -1260,6 +1274,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             locData.put("altitude", params[2]);
             locData.put("speed", params[3]);
             locData.put("accuracy", params[4]);
+            locData.put("timestamp", System.currentTimeMillis());
             locData.put("session_id", Session.getID());
         }
         catch (JSONException e){

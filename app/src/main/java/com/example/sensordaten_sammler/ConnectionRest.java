@@ -40,6 +40,7 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
         Request request;
         //POST
         if(params.length>1){
+            Log.d("XRESTPOST",urlstring+params[1]);
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, params[1]);
             request = new Request.Builder()
@@ -48,6 +49,7 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
                     .build();
         }//GET
         else{
+            Log.d("XRESTGET",urlstring);
             request = new Request.Builder()
                     .url(urlstring)
                     .build();
