@@ -63,7 +63,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -105,7 +104,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@Nullable  LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_location, container, false);
         startStopBtn = view.findViewById(R.id.bStartStopLoc);
         choosedLocMethBtn = view.findViewById(R.id.chooseLocMethodsBtn);
@@ -638,6 +637,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
                         startButtonPressed = true;
                         accAbsolutesList.clear();
+                        createRouteVersuch();
                         if(csv.isChecked()){
                             GTWPSwithTSFileName = etRouteLabel.getText().toString() + "GTWPSwithTS" + ".csv";
                             saveFile("WP-Nr" + "," + "Zeit" + "," + "Breitengrad" + "," + "Längengrad" + ","+ "Höhe" + "\n", GTWPSwithTSFileName, false);
@@ -807,19 +807,17 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     //send timestamp to server
                     JSONObject obj = new JSONObject();
                     try{
-                        obj.put("latitude", Double.parseDouble(etLat.toString()));
-                        obj.put("longitude", Double.parseDouble(etLong.toString()));
-                        obj.put("altitude", Double.parseDouble(etAlt.toString()));
-                        obj.put("messwerteroute_name", GTWPSwithTSFileName);
+                        obj.put("latitude", Double.parseDouble(etLat.getText().toString()));
+                        obj.put("longitude", Double.parseDouble(etLong.getText().toString()));
+                        obj.put("altitude", Double.parseDouble(etAlt.getText().toString()));
+                        obj.put("messwerteroute_name", etRouteLabel.getText().toString());
                         obj.put("timestamp", Long.toString(timestamp));
                         obj.put("session_id", Session.getID());
                     }
                     catch (JSONException e){
                         e.printStackTrace();
                     }
-                    new ConnectionRest(
-                            (json)->Log.d("REST_POST", obj.toString())
-                    ).execute("messwerte",obj.toString());
+                    new ConnectionRest().execute("messwerte",obj.toString());
                 }
                 break;
 
@@ -1284,6 +1282,19 @@ public class LocationFragment extends Fragment implements LocationListener, View
         return text;
     }
 
+    private void createRouteVersuch(){
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("name", etRouteLabel.getText().toString());
+            obj.put("route_template", spinnerRoute.getSelectedItem().toString());
+            obj.put("session_id", Session.getID());
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        new ConnectionRest().execute("messwerteroute", obj.toString());
+    }
+
     private void sendGPSDataRest(double ... params){
         JSONObject locData = new JSONObject();
         try{
@@ -1292,6 +1303,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             locData.put("altitude", params[2]);
             locData.put("speed", params[3]);
             locData.put("accuracy", params[4]);
+            locData.put("timestamp", System.currentTimeMillis());
             locData.put("session_id", Session.getID());
         }
         catch (JSONException e){
