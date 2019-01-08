@@ -101,13 +101,17 @@
 
         <EditText
             android:id="@+id/etRouteLabel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/checkBoxAccele"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="0dp"
+            android:layout_toEndOf="@+id/spRoutenTemp"
             android:hint="@string/hint_csv_file_name"
             android:padding="10sp"
-            android:textSize="15sp"
-            android:layout_marginTop="10sp"/>
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/bStartStopLoc"
@@ -1147,6 +1151,15 @@
             android:minHeight="2dp"
             android:minWidth="2dp"
             android:layout_marginTop="5sp"/>
+
+        <Spinner
+            android:id="@+id/spRoutenTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_below="@+id/checkBoxAccele"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp" />
 
     </RelativeLayout>
 

@@ -30,11 +30,15 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -57,6 +61,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,6 +101,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     float distThresholdInM, maxSpeed;
     List<Double> accAbsolutesList;
     public boolean requestingLocationUpdates;
+    Spinner spinnerRoute;
 
     @Nullable
     @Override
@@ -114,6 +120,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         addWPIndoor.setOnClickListener(this);
         addWPOutdoor.setOnClickListener(this);
         svBtn = view.findViewById(R.id.svbtnLocMan);
+        spinnerRoute = view.findViewById(R.id.spRoutenTemp);
         csv = view.findViewById(R.id.csvBoxLoc);
         checkboxUseAccelerometer = view.findViewById(R.id.checkBoxAccele);
         csv.setEnabled(true);
@@ -129,6 +136,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initTVs(view);
+        initSpRoutes();
         timeIntervMs = view.findViewById(R.id.minIntervallTimeLoc);
         posChangeInM = view.findViewById(R.id.minPosChangeLocMan);
         fastesTimeIntervMs = view.findViewById(R.id.fastesIntervallTimeLoc);
@@ -141,17 +149,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
         etDistThreshold.setVisibility(View.INVISIBLE);
         etMaxSpeed.setVisibility(View.INVISIBLE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        svBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                    sendDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS,
-                            latitudeNetwork, longitudeNetwork, altitudeNetwork, speedNetwork,accuracyNetwork,
-                            latitudeHighAcc, longitudeHighAcc, altitudeHighAcc, speedHighAcc, accuracyHighAcc,
-                            latitudeBalanced, longitudeBalanced, altitudeBalanced, speedBalanced,accuracyBalanced,
-                            latitudeLowPow, longitudeLowPow, altitudeLowPow, speedLowPow,accuracyLowPow,
-                            latitudeNoPow, longitudeNoPow, altitudeNoPow, speedNoPow, accuracyNoPow);
-            }
-        });
         etDistThreshold.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -504,7 +501,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                     if(checkboxUseAccelerometer.isChecked() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null)){
                                         Log.e("TESTT", "checkboxUseAccelerometer.isSelected() && (MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null");
                                         Sensor sensorToBeListenedTo = MainActivity.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, SensorManager.SENSOR_DELAY_NORMAL);
+                                        MainActivity.sensorManager.registerListener(this, sensorToBeListenedTo, 400000);
                                     }
                                 }
                                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
@@ -788,7 +785,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 break;
 
             case R.id.saveIndoorTimestamp:
-                TableLayout indoorRouteTable = getActivity().findViewById(R.id.routeIndoors);
+                TableLayout indoorRouteTable = requireActivity().findViewById(R.id.routeIndoors);
                 TableRow row = null;
                 for(int i = 1; i < indoorRouteTable.getChildCount(); i++){ // Starte bei zweiten Zeile (Index 1), da sich in der ersten Zeile nur die Spaltenüberschriften befinden
                     row = (TableRow) indoorRouteTable.getChildAt(i);
@@ -798,12 +795,31 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         break;
                     }
                 }
-                TextView tvWPNr = (TextView) row.getChildAt(0);
-                EditText etLat = (EditText) row.getChildAt(1);
-                EditText etLong = (EditText) row.getChildAt(2);
-                EditText etAlt = (EditText) row.getChildAt(3);
-                if(csv.isChecked()) {
-                    saveFile( tvWPNr.getText().toString() + "," + System.currentTimeMillis() + "," + etLat.getText().toString() + "," + etLong.getText().toString() + "," + etAlt.getText().toString() + "\n", GTWPSwithTSFileName, true);
+                if(row != null) {
+                    TextView tvWPNr = (TextView) row.getChildAt(0);
+                    EditText etLat = (EditText) row.getChildAt(1);
+                    EditText etLong = (EditText) row.getChildAt(2);
+                    EditText etAlt = (EditText) row.getChildAt(3);
+                    Long timestamp = System.currentTimeMillis();
+                    if (csv.isChecked()) {
+                        saveFile(tvWPNr.getText().toString() + "," + timestamp + "," + etLat.getText().toString() + "," + etLong.getText().toString() + "," + etAlt.getText().toString() + "\n", GTWPSwithTSFileName, true);
+                    }
+                    //send timestamp to server
+                    JSONObject obj = new JSONObject();
+                    try{
+                        obj.put("latitude", Double.parseDouble(etLat.toString()));
+                        obj.put("longitude", Double.parseDouble(etLong.toString()));
+                        obj.put("altitude", Double.parseDouble(etAlt.toString()));
+                        obj.put("messwerteroute_name", GTWPSwithTSFileName);
+                        obj.put("timestamp", Long.toString(timestamp));
+                        obj.put("session_id", Session.getID());
+                    }
+                    catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                    new ConnectionRest(
+                            (json)->Log.d("REST_POST", obj.toString())
+                    ).execute("messwerte",obj.toString());
                 }
                 break;
 
@@ -1268,67 +1284,143 @@ public class LocationFragment extends Fragment implements LocationListener, View
         return text;
     }
 
-    private void sendDataRest(double ... params){
+    private void sendGPSDataRest(double ... params){
         JSONObject locData = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
         try{
-            locData.put("latitudeGPS", params[0]);
-            locData.put("longitudeGPS", params[1]);
-            locData.put("altitudeGPS", params[2]);
-            locData.put("speedGPS", params[3]);
-            locData.put("accuracyGPS", params[4]);
-            locData.put("latitudeNetwork", params[5]);
-            locData.put("longitudeNetwork", params[6]);
-            locData.put("altitudeNetwork", params[7]);
-            locData.put("speedNetwork", params[8]);
-            locData.put("accuracyNetwork", params[9]);
-            locData.put("latitudeHighAcc", params[10]);
-            locData.put("longitudeHighAcc", params[11]);
-            locData.put("altitudeHighAcc", params[12]);
-            locData.put("speedHighAcc", params[13]);
-            locData.put("accuracyHighAcc", params[14]);
-            locData.put("latitudeBalanced", params[15]);
-            locData.put("longitudeBalanced", params[16]);
-            locData.put("altitudeBalanced", params[17]);
-            locData.put("speedBalanced", params[18]);
-            locData.put("accuracyBalanced", params[19]);
-            locData.put("latitudeLowPow", params[20]);
-            locData.put("longitudeLowPow", params[21]);
-            locData.put("altitudeLowPow", params[22]);
-            locData.put("speedLowPow", params[23]);
-            locData.put("accuracyLowPow", params[24]);
-            locData.put("latitudeNoPow", params[25]);
-            locData.put("longitudeNoPow", params[26]);
-            locData.put("altitudeNoPow", params[27]);
-            locData.put("speedNoPow", params[28]);
-            locData.put("accuracyNoPow", params[29]);
+            locData.put("latitude", params[0]);
+            locData.put("longitude", params[1]);
+            locData.put("altitude", params[2]);
+            locData.put("speed", params[3]);
+            locData.put("accuracy", params[4]);
             locData.put("session_id", Session.getID());
-            jsonArray.put(locData);
         }
         catch (JSONException e){
             e.printStackTrace();
         }
-        new ConnectionRest().execute("netzwerklokalisierung",jsonArray.toString());
+        new ConnectionRest().execute("lokalisierung",locData.toString());
         Log.d("RESTAPI",locData.toString());
     }
 
-    private void sendGPSDataRest(double ... params){
-        JSONObject locData = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        try{
-            locData.put("latitudeGPS", params[0]);
-            locData.put("longitudeGPS", params[1]);
-            locData.put("altitudeGPS", params[2]);
-            locData.put("speedGPS", params[3]);
-            locData.put("accuracyGPS", params[4]);
-            locData.put("session_id", Session.getID());
-            jsonArray.put(locData);
-        }
-        catch (JSONException e){
-            e.printStackTrace();
-        }
-        new ConnectionRest().execute("netzwerklokalisierung",jsonArray.toString());
-        Log.d("RESTAPI",locData.toString());
+    private void initSpRoutes() {
+        this.spinnerRoute.setOnTouchListener((View v, MotionEvent motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                new ConnectionRest(
+                        (json) -> {
+                            try {
+                                String[] items = new String[json.length()];
+                                for (int i = 0; i < json.length(); i++) {
+                                    items[i] = json.getJSONObject(i).getString("name");
+                                }
+                                boolean oldList = this.spinnerRoute.getAdapter().getCount() == items.length;
+                                if (oldList)
+                                    for (int i = 0; i < items.length; i++)
+                                        oldList = oldList && (items[i].equals(this.spinnerRoute.getItemAtPosition(i).toString()));
+                                if (!oldList) {
+                                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(),
+                                            android.R.layout.simple_spinner_item, items);
+                                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    this.spinnerRoute.setAdapter(adapter);
+                                }
+
+                            } catch (Exception e) {
+                                Log.d("REST ERROR", e.getMessage());
+                            }
+                        }
+                ).execute("route");
+                v.performClick();
+            }
+            return true;
+        });
+        spinnerRoute.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("SELECTED ITEM:", spinnerRoute.getSelectedItem().toString());
+                new ConnectionRest(
+                        (json) -> {
+                            try {
+                                TableLayout indoorRouteTable = requireActivity().findViewById(R.id.routeIndoors);
+                                if (indoorRouteTable.getChildCount() > 1)
+                                    indoorRouteTable.removeViews(1, indoorRouteTable.getChildCount() - 1);
+                                for (int j = 0; j < json.length(); j++)
+                                    createTableRow(json.getJSONObject(j).getString("latitude"),
+                                            json.getJSONObject(j).getString("longitude"),
+                                            json.getJSONObject(j).getString("altitude"));
+                            } catch (Exception e) {
+                                Log.d("REST ERROR", e.getMessage());
+                            }
+                        }
+                ).execute("route/" + spinnerRoute.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        new ConnectionRest(
+                (json) -> {
+                    try {
+                        String[] s = new String[json.length()];
+
+                        for (int i = 0; i < json.length(); i++) {
+                            s[i] = json.getJSONObject(i).getString("name");
+                        }
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(),
+                                android.R.layout.simple_spinner_item, s);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        this.spinnerRoute.setAdapter(adapter);
+                    } catch (Exception e) {
+                        Log.d("REST ERROR", e.getMessage());
+                    }
+                }
+        ).execute("route");
+    }
+
+    public void createTableRow(String ... args){
+        // Neue Zeile zur Tabelle hinzugügen ( = neuer Waypoint zur Route)
+        TableLayout indoorRouteTable = requireActivity().findViewById(R.id.routeIndoors);
+        TableRow newIndoorWPT = new TableRow(getActivity());
+        int newWPIDIndoor = indoorRouteTable.getChildCount(); // WPID = Nummer des Waypoints; 1 = A, 2 = B, usw.
+
+        TextView tvNewWPTIDIndoor = new TextView(getActivity()),
+                tvTimestampIndoor = new TextView(getActivity());
+        tvNewWPTIDIndoor.setTextSize(12);
+        tvNewWPTIDIndoor.setGravity(Gravity.START);
+        tvNewWPTIDIndoor.setPadding(2,2,2,2);
+        tvNewWPTIDIndoor.setText(String.format(Locale.getDefault(),"%d",newWPIDIndoor));
+        tvTimestampIndoor.setText(getString(R.string.loc_data_empty));
+        tvTimestampIndoor.setTextSize(12);
+        tvTimestampIndoor.setGravity(Gravity.START);
+        tvTimestampIndoor.setPadding(2,2,2,2);
+
+                /*
+                EditTexts ermöglichen die Eingabe der Positionsdaten,
+                die Daten einer Beispielroute sind aber schon unterlegt (habe ich selbst erstellt, könnten wir auch so nutzen)
+                 */
+        EditText etLatIndoor = new EditText(getActivity()), etLongIndoor = new EditText(getActivity()), etAltIndoor = new EditText(getActivity());
+
+        etLatIndoor.setText(args[0].substring(0,9));
+        etLatIndoor.setTextSize(12);
+        etLatIndoor.setGravity(Gravity.START);
+        etLatIndoor.setPadding(2,2,2,2);
+
+        etLongIndoor.setText(args[1].substring(0,9));
+        etLongIndoor.setTextSize(12);
+        etLongIndoor.setGravity(Gravity.START);
+        etLongIndoor.setPadding(2,2,2,2);
+
+
+        etAltIndoor.setText(args[2]);
+        etAltIndoor.setTextSize(12);
+        etAltIndoor.setGravity(Gravity.START);
+        etAltIndoor.setPadding(2,2,2,2);
+
+        newIndoorWPT.addView(tvNewWPTIDIndoor);
+        newIndoorWPT.addView(etLatIndoor);
+        newIndoorWPT.addView(etLongIndoor);
+        newIndoorWPT.addView(etAltIndoor);
+        newIndoorWPT.addView(tvTimestampIndoor);
+        indoorRouteTable.addView(newIndoorWPT);
     }
 
     @Override
@@ -1382,7 +1474,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         }
         if(!requestingLocationUpdates && moving){
             Log.e("TESTT", "!requestingLocationUpdates und moving");
-            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestFineLocationPermission();
             } else {
                 MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
