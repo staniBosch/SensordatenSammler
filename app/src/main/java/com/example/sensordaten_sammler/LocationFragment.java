@@ -61,7 +61,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
         GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
 
     private static final int FINE_LOCATION_PERMISSION_CODE = 1;
-    Button startStopBtn, svBtn, choosedLocMethBtn, addWPIndoor, addWPOutdoor, svIndoorTS, svOutdoorTS;
+    Button startStopBtn, choosedLocMethBtn, addWPIndoor, addWPOutdoor, svIndoorTS, svOutdoorTS;
     EditText timeIntervMs, posChangeInM, fastesTimeIntervMs, etRouteLabel, etDistThreshold, etMaxSpeed;
     TextView tvLatHighAcc, tvLongHighAcc, tvAltHighAcc, tvSpeedHighAcc, tvAccHighAcc
             , tvLatBalanced, tvLongBalanced, tvAltBalanced, tvSpeedBalanced, tvAccBalanced
@@ -109,7 +109,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
         svOutdoorTS.setOnClickListener(this);
         addWPIndoor.setOnClickListener(this);
         addWPOutdoor.setOnClickListener(this);
-        svBtn = view.findViewById(R.id.svbtnLocMan);
         spinnerRoute = view.findViewById(R.id.spRoutenTemp);
         csv = view.findViewById(R.id.csvBoxLoc);
         checkboxUseAccelerometer = view.findViewById(R.id.checkBoxAccele);

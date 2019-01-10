@@ -643,26 +643,16 @@
             </TableRow>
         </TableLayout>
 
-        <Button
-            android:id="@+id/svbtnLocMan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/liveLocDataTableLocMan"
-            android:text="@string/save_btn"
-            android:textSize="15sp"
-            android:padding="10sp"
-            android:layout_marginTop="5sp"/>
-
         <TextView
             android:id="@+id/tvRouteHeadline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/route_section_headline"
-            android:layout_below="@+id/svbtnLocMan"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:layout_below="@+id/liveLocDataTableLocMan"
+            android:layout_marginTop="10dp"
             android:padding="2sp"
-            android:layout_marginTop="5sp"/>
+            android:text="@string/route_section_headline"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvRouteIndoorHeadline"
