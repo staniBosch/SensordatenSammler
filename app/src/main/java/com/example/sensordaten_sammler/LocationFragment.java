@@ -225,14 +225,15 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && etMaxSpeed.getText().toString().equalsIgnoreCase("")
                         && (lastLocationGPS == null || lastLocationGPS.distanceTo(newestLocation) > distThresholdInM)){
                     this.lastLocationGPS = newestLocation;
-                    sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                    //sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
                     Toast.makeText(getActivity(), "Positionsfix an Server gesendet!", Toast.LENGTH_SHORT).show();
                 }
                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
                 else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
-                    sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                    //sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
                     Toast.makeText(getActivity(), "LocationUpdate empfangen!", Toast.LENGTH_SHORT).show();
                 }
+                sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
                 Activity activity = getActivity();
                 String lat = convertLatitude(latitudeGPS);
                 String lon = convertLongitude(longitudeGPS);
@@ -1251,8 +1252,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
     private void createRouteVersuch(){
         JSONObject obj = new JSONObject();
         try{
+            String route_template = spinnerRoute.getSelectedItem()!=null?spinnerRoute.getSelectedItem().toString():"";
             obj.put("name", etRouteLabel.getText().toString());
-            obj.put("route_template", spinnerRoute.getSelectedItem().toString());
+            obj.put("route_template", route_template);
             obj.put("session_id", Session.getID());
 
         }catch (JSONException e){
