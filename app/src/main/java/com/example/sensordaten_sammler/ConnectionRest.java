@@ -5,16 +5,6 @@ import android.util.Log;
 
 import org.json.JSONArray;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.function.Consumer;
 
 import okhttp3.MediaType;
@@ -25,11 +15,11 @@ import okhttp3.Response;
 
 public class ConnectionRest extends AsyncTask<String, Void, Object> {
 
-    Consumer<JSONArray> fun;
-    public ConnectionRest (Consumer<JSONArray> c){
+    private Consumer<JSONArray> fun;
+    ConnectionRest (Consumer<JSONArray> c){
         this.fun = c;
     }
-    public ConnectionRest (){
+    ConnectionRest (){
         super();
     }
 
@@ -54,7 +44,7 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
                     .url(urlstring)
                     .build();
         }
-        Response response = null;
+        Response response;
         try{
             response = client.newCall(request).execute();
             //Log.d("Response", response.body().string());
@@ -63,7 +53,10 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
             else return response;
         }
         catch(Exception e){
-            e.printStackTrace();
+            if(params.length>1)
+                Log.d("XRESTError", "couldnt send :"+params[1]);
+            else
+                Log.d("XRESTError", "couldnt get :"+urlstring);
         }
 
         return null;
