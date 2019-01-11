@@ -25,6 +25,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sensordaten_sammler.rest.ConnectionRest;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

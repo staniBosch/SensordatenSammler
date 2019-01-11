@@ -53,7 +53,7 @@ public class Session {
                         JSONObject js = new JSONObject(response.body().string());
                         int i = js.getInt("id");
                         Session.ID = i;
-                        Log.d("Response", "Added Device: with id: "+i);
+                        Log.d("XREST", "Added Device: with id: "+i);
 
 
                         //Speichere lokal die SessionIDs ab

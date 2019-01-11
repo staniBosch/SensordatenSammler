@@ -40,6 +40,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sensordaten_sammler.rest.ConnectionRest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -1008,7 +1009,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                         return false;
                     }
 
-                    if(fileNameComplete.equals("")){
+                    if(fileNameComplete==null){
                         Toast.makeText(getActivity(), "Fehler beim Starten einer FusedLocation-Positionierungsvariante", Toast.LENGTH_SHORT).show();
                         return false;
                     }

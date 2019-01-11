@@ -1,4 +1,4 @@
-package com.example.sensordaten_sammler;
+package com.example.sensordaten_sammler.rest;
 
 import android.os.AsyncTask;
 import android.util.Log;
