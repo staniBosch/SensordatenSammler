@@ -3,6 +3,7 @@ package com.example.sensordaten_sammler;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -41,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sensordaten_sammler.rest.ConnectionRest;
+import com.example.sensordaten_sammler.rest.Data2ServerTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -93,6 +95,9 @@ public class LocationFragment extends Fragment implements LocationListener, View
     List<Double> accAbsolutesList;
     public boolean requestingLocationUpdates;
     Spinner spinnerRoute;
+
+    private Data2ServerTask networkStateReceiver;
+    private boolean mNetworkAvailable;
 
     @Nullable
     @Override
@@ -1129,6 +1134,10 @@ public class LocationFragment extends Fragment implements LocationListener, View
     @Override
     public void onResume() {
         super.onResume();
+        if (networkStateReceiver == null) {
+            networkStateReceiver = new Data2ServerTask();
+            this.requireActivity().registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
+        }
     }
 
     @Override
@@ -1209,6 +1218,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
             startStopBtn.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null);
         }
         accAbsolutesList.clear();
+
+        // Remove network state receiver and listener as we don't need them at this point
+        if (networkStateReceiver != null) {
+            this.requireActivity().unregisterReceiver(networkStateReceiver);
+            networkStateReceiver = null;
+        }
     }
 
     public void saveFile(String text, String fileName, boolean append)

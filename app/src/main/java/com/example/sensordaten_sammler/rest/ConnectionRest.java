@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.function.Consumer;
 
@@ -16,10 +17,10 @@ import okhttp3.Response;
 public class ConnectionRest extends AsyncTask<String, Void, Object> {
 
     private Consumer<JSONArray> fun;
-    ConnectionRest (Consumer<JSONArray> c){
+    public ConnectionRest (Consumer<JSONArray> c){
         this.fun = c;
     }
-    ConnectionRest (){
+    public ConnectionRest (){
         super();
     }
 
@@ -30,37 +31,39 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
         Request request;
         //POST
         if(params.length>1){
-            Log.d("XRESTPOST",urlstring+params[1]);
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(JSON, params[1]);
             request = new Request.Builder()
                     .url(urlstring)
                     .post(body)
                     .build();
+            try {
+                Response response = client.newCall(request).execute();
+                Log.d("XRESTPOST", urlstring + params[1]);
+                if(response.body()!=null)
+                    return new JSONObject(response.body().string());
+                else return response;
+            } catch (Exception e){
+                new Data2ServerTask().data2Local(urlstring, params[1]);
+                Log.d("XRESTError", "couldnt send :"+params[1]+" errmsg: "+e.getMessage());
+            }
         }//GET
         else{
-            Log.d("XRESTGET",urlstring);
             request = new Request.Builder()
                     .url(urlstring)
                     .build();
-        }
-        Response response;
-        try{
-            response = client.newCall(request).execute();
-            //Log.d("Response", response.body().string());
-            if(response.body()!=null)
-                return new JSONArray(response.body().string());
-            else return response;
-        }
-        catch(Exception e){
-            if(params.length>1)
-                Log.d("XRESTError", "couldnt send :"+params[1]);
-            else
+            try {
+                Response response = client.newCall(request).execute();
+                Log.d("XRESTGET", urlstring);
+                if(response.body()!=null)
+                    return new JSONArray(response.body().string());
+                else return response;
+            } catch (Exception e){
                 Log.d("XRESTError", "couldnt get :"+urlstring);
+            }
         }
-
         return null;
-   }
+    }
     @Override
     protected void onPostExecute(Object jsonarrdata) {
         super.onPostExecute(jsonarrdata);
