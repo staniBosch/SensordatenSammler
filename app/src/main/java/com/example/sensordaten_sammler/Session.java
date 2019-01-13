@@ -24,79 +24,80 @@ public class Session {
 
     private static int ID =-1;
 
-    public static int getID(Context ctx){
-
-        if(Session.ID<0){
-
-            JSONObject data = new JSONObject();
-            try{
-                data.put("value", android.os.Build.MODEL);
-            }
-            catch (JSONException e){
-                e.printStackTrace();
-            }
-            new AsyncTask<String, Void, Void>() {
-                @Override
-                protected Void doInBackground(String... params) {
+    public static int createID(Context ctx){
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                JSONObject js = null;
+                Log.d("XSESSION", "Drin");
+                try {
+                    //POST SESSION
                     String urlstring = "http://sbcon.ddns.net:3000/api/session";
-
+                    JSONObject data = new JSONObject();
+                    data.put("value", android.os.Build.MODEL);
                     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
                     OkHttpClient client = new OkHttpClient();
-                    RequestBody body = RequestBody.create(JSON,params[0]);
+                    RequestBody body = RequestBody.create(JSON,data.toString());
                     Request request = new Request.Builder()
                             .url(urlstring)
                             .post(body)
                             .build();
+                    Response response = client.newCall(request).execute();
+                    js = new JSONObject(response.body().string());
+                    int i = js.getInt("id");
+                    Session.ID = i;
+                    Log.d("XREST", "Added Device: with id: " + i);
+                } catch(Exception e){
+                    Session.ID = -1;
+                }
+                try{//Speichere lokal die SessionIDs ab
 
-                    try {
-                        Response  response = client.newCall(request).execute();
-                        JSONObject js = new JSONObject(response.body().string());
-                        int i = js.getInt("id");
-                        Session.ID = i;
-                        Log.d("XREST", "Added Device: with id: "+i);
-
-
-                        //Speichere lokal die SessionIDs ab
-                        String fname = "sessionID.json";
-                        File f = new File(ctx.getFilesDir(), fname);
-                        if(!f.exists()) try {
-                            f.createNewFile();
-                            FileOutputStream fos = ctx.openFileOutput(fname, Context.MODE_PRIVATE);
-                            fos.write("{\"session\":[]}".getBytes());
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        //lesen und jsonobj erstellen
-
-                        StringBuilder text = new StringBuilder();
-                        BufferedReader br = new BufferedReader(new FileReader(f));
-                        String line;
-
-                        while ((line = br.readLine()) != null) {
-                            text.append(line);
-                            text.append('\n');
-                        }
-                        br.close();
-
-                        JSONObject jsonSession = new JSONObject(text.toString());
-
-                        JSONArray jarray  = jsonSession.getJSONArray("session");
-                        jarray.put(js);
-                        //speichere alle Sessions lokal
+                    Log.d("XSESSION", "Drin3");
+                    String fname = "sessionID.json";
+                    File f = new File(ctx.getFilesDir(), fname);
+                    if(!f.exists())
+                        try {
+                        f.createNewFile();
                         FileOutputStream fos = ctx.openFileOutput(fname, Context.MODE_PRIVATE);
-                        fos.write(jsonSession.toString().getBytes());
+                        fos.write("{\"session\":[]}".getBytes());
                         fos.close();
-
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    //lesen und jsonobj erstellen
+                    StringBuilder text = new StringBuilder();
+                    BufferedReader br = new BufferedReader(new FileReader(f));
+                    String line;
 
-                    return null;
+                    while ((line = br.readLine()) != null) {
+                        text.append(line);
+                        text.append('\n');
+                    }
+
+                    br.close();
+
+                    JSONObject jsonSession = new JSONObject(text.toString());
+                    JSONArray jarray  = jsonSession.getJSONArray("session");
+
+                    Log.d("XSESSION",jarray.toString());
+                    if(Session.ID < 0)
+                        for(int i = 0; i<jarray.length();i++)
+                            if(Session.ID >= jarray.getJSONObject(i).getInt("id"))
+                                Session.ID = jarray.getJSONObject(i).getInt("id")-1;
+
+                    js = new JSONObject("{'id':"+Session.ID+"}");
+                    if(js != null)
+                        jarray.put(js);
+                    //speichere alle Sessions lokal
+                    FileOutputStream fos = ctx.openFileOutput(fname, Context.MODE_PRIVATE);
+                    fos.write(jsonSession.toString().getBytes());
+                    fos.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }.execute(data.toString());
-        }
-
+                return null;
+            }
+        }.execute();
         return Session.ID;
     }
 

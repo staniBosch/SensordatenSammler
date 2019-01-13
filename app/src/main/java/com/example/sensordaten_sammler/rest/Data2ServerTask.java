@@ -58,12 +58,13 @@ public class Data2ServerTask  extends BroadcastReceiver {
             //look up if array is not empty or session_id exist
             JSONObject jsonSession = new JSONObject();
 
-            if(Session.getID()>0 && jsonarrmain.length()>1)
+            if(jsonarrmain.length()>1)
                 for(int i = 0; i < jsonarrmain.length(); i++)
                     if(Session.getID() == jsonarrmain.getJSONObject(i).getInt("session_id"))
                         jsonSession = jsonarrmain.getJSONObject(i);
             //otherwise create
-            jsonSession.put("session_id", Session.getID());
+            if(jsonSession.length()<1)
+                jsonSession.put("session_id", Session.getID());
             JSONArray sendArray = new JSONArray();
 
 
