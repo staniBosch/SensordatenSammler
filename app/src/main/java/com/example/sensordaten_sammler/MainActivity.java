@@ -28,7 +28,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MainActivity.ctx = getApplicationContext();
-        Session.createID(MainActivity.ctx);
+        if(Session.getID()== 0)
+            Session.createID(getApplicationContext());
         setContentView(R.layout.activity_main);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);

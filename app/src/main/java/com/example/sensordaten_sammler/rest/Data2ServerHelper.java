@@ -134,17 +134,6 @@ public class Data2ServerHelper extends BroadcastReceiver {
         } catch(Exception e){
             e.printStackTrace();
         }
-        //new ConnectionRest().execute();
-        //lesen der tmpData.json und speichere JSONArray
-        //JSONArray jsonarr = getArrayListFile("tmpData.json");
-        //if(jsonarr)
-        //JSONObject toSend= new JSONObject(jsonarr.get(0).toString());
-        //jsonarr.remove(0);
-        //speichern der Datei tmpData.json ohne die zu verseneden Dateien
-       // FileOutputStream fos = MainActivity.ctx.openFileOutput("tmpData.json", Context.MODE_PRIVATE);
-       // fos.write(jsonSession.toString().getBytes());
-       // fos.close();
-
     }
     public void data2Local(String url, String jsonObj){
 

@@ -22,7 +22,7 @@ import okhttp3.Response;
 
 public class Session {
 
-    private static int ID =-1;
+    private static int ID =0;
     public static int createID(Context ctx){
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -76,7 +76,7 @@ public class Session {
                     JSONObject jsonSession = new JSONObject(text.toString());
                     JSONArray jarray = jsonSession.getJSONArray("session");
 
-                    if (Session.ID < 0)
+                    if (Session.ID < 1)
                         for (int i = 0; i < jarray.length(); i++)
                             if (Session.ID >= jarray.getJSONObject(i).getInt("id"))
                                 Session.ID = jarray.getJSONObject(i).getInt("id") - 1;
