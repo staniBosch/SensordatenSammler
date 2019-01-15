@@ -53,7 +53,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +99,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
     Spinner spinnerRoute;
 
     private Data2ServerHelper networkStateReceiver;
-    private boolean mNetworkAvailable;
 
     @Nullable
     @Override
@@ -1323,8 +1321,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             } catch (Exception e) {
                                 Log.d("REST ERROR", e.getMessage());
                             }
-                            else{
-                            }
                         }
                 ).execute("route");
                 v.performClick();
@@ -1337,7 +1333,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 new ConnectionRest(
                         (json) -> {
                             try {
-                                if(json != null)
+                                if(json == null)
                                     json = getOfflineRoute().getJSONObject(i).getJSONArray("waypoints");
 
                                 TableLayout indoorRouteTable = requireActivity().findViewById(R.id.routeIndoors);
@@ -1383,10 +1379,10 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 }
         ).execute("route");
     }
-    private JSONArray getOfflineRoute() throws JSONException{
+    private JSONArray getOfflineRoute() {
         return Data2ServerHelper.rcJsonFile("route.json","[]");
     }
-    private void setOfflineRoute(String routen) throws JSONException, IOException {
+    private void setOfflineRoute(String routen) throws JSONException {
 
         JSONArray arr = new JSONArray(routen);
 
