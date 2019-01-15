@@ -3,6 +3,7 @@ package com.example.sensordaten_sammler;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -42,7 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sensordaten_sammler.rest.ConnectionRest;
-import com.example.sensordaten_sammler.rest.Data2ServerTask;
+import com.example.sensordaten_sammler.rest.Data2ServerHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -52,11 +53,13 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,7 +99,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public boolean requestingLocationUpdates;
     Spinner spinnerRoute;
 
-    private Data2ServerTask networkStateReceiver;
+    private Data2ServerHelper networkStateReceiver;
     private boolean mNetworkAvailable;
 
     @Nullable
@@ -1135,7 +1138,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     public void onResume() {
         super.onResume();
         if (networkStateReceiver == null) {
-            networkStateReceiver = new Data2ServerTask();
+            networkStateReceiver = new Data2ServerHelper();
             this.requireActivity().registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
         }
     }
@@ -1293,7 +1296,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
             e.printStackTrace();
         }
         new ConnectionRest().execute("lokalisierung",locData.toString());
-        Log.d("RESTAPI",locData.toString());
     }
 
     private void initSpRoutes() {
@@ -1301,6 +1303,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
             if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                 new ConnectionRest(
                         (json) -> {
+                            if(json != null)
                             try {
                                 String[] items = new String[json.length()];
                                 for (int i = 0; i < json.length(); i++) {
@@ -1320,6 +1323,8 @@ public class LocationFragment extends Fragment implements LocationListener, View
                             } catch (Exception e) {
                                 Log.d("REST ERROR", e.getMessage());
                             }
+                            else{
+                            }
                         }
                 ).execute("route");
                 v.performClick();
@@ -1329,10 +1334,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
         spinnerRoute.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("SELECTED ITEM:", spinnerRoute.getSelectedItem().toString());
                 new ConnectionRest(
                         (json) -> {
                             try {
+                                if(json != null)
+                                    json = getOfflineRoute().getJSONObject(i).getJSONArray("waypoints");
+
                                 TableLayout indoorRouteTable = requireActivity().findViewById(R.id.routeIndoors);
                                 if (indoorRouteTable.getChildCount() > 1)
                                     indoorRouteTable.removeViews(1, indoorRouteTable.getChildCount() - 1);
@@ -1354,21 +1361,50 @@ public class LocationFragment extends Fragment implements LocationListener, View
         });
         new ConnectionRest(
                 (json) -> {
-                    try {
-                        String[] s = new String[json.length()];
 
-                        for (int i = 0; i < json.length(); i++) {
-                            s[i] = json.getJSONObject(i).getString("name");
-                        }
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(),
-                                android.R.layout.simple_spinner_item, s);
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        this.spinnerRoute.setAdapter(adapter);
-                    } catch (Exception e) {
+                    try {
+                        if (json != null)
+                            setOfflineRoute(json.toString());
+                        else
+                            json = getOfflineRoute();
+                            String[] s = new String[json.length()];
+
+                            for (int i = 0; i < json.length(); i++) {
+                                s[i] = json.getJSONObject(i).getString("name");
+                            }
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(),
+                                    android.R.layout.simple_spinner_item, s);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            this.spinnerRoute.setAdapter(adapter);
+
+                    } catch(Exception e){
                         Log.d("REST ERROR", e.getMessage());
                     }
                 }
         ).execute("route");
+    }
+    private JSONArray getOfflineRoute() throws JSONException{
+        return Data2ServerHelper.rcJsonFile("route.json","[]");
+    }
+    private void setOfflineRoute(String routen) throws JSONException, IOException {
+
+        JSONArray arr = new JSONArray(routen);
+
+        for(int i = 0; i<arr.length();i++){
+            final int j = i;
+            new ConnectionRest(
+                    (json) -> {
+                        try {
+                            arr.getJSONObject(j).put("waypoints",json);
+                            FileOutputStream fos =  requireContext().openFileOutput("route.json", Context.MODE_PRIVATE);
+                            fos.write(arr.toString().getBytes());
+                            fos.close();
+                        } catch(Exception e){
+                            Log.d("REST ERROR", e.getMessage());
+                        }
+                    }
+            ).execute("route/"+arr.getJSONObject(i).getString("name"));
+        }
     }
 
     public void createTableRow(String ... args){

@@ -20,13 +20,15 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
+    public static Context ctx;
     public static SensorManager sensorManager;
     public static LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Session.createID(getApplicationContext());
+        MainActivity.ctx = getApplicationContext();
+        Session.createID(MainActivity.ctx);
         setContentView(R.layout.activity_main);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);

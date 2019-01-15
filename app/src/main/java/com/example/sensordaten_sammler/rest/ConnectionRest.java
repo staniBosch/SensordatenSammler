@@ -26,7 +26,11 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
 
     @Override
     protected Object doInBackground(String... params) {
-        String urlstring = "http://sbcon.ddns.net:3000/api/"+params[0];
+        String urlstring;
+        if(params[0].contains("sbcon"))
+            urlstring = params[0];
+        else
+            urlstring = "http://sbcon.ddns.net:3000/api/"+params[0];
         OkHttpClient client = new OkHttpClient();
         Request request;
         //POST
@@ -39,12 +43,14 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
                     .build();
             try {
                 Response response = client.newCall(request).execute();
-                Log.d("XRESTPOST", urlstring + params[1]);
-                if(response.body()!=null)
-                    return new JSONObject(response.body().string());
-                else return response;
+                if(response.body()!=null){
+                    JSONObject responseJSON = new JSONObject(response.body().string());
+                    Log.d("XRESTPOST", urlstring + params[1]);
+                    return responseJSON;
+                }
+                else return null;
             } catch (Exception e){
-                new Data2ServerTask().data2Local(urlstring, params[1]);
+                new Data2ServerHelper().data2Local(urlstring, params[1]);
                 Log.d("XRESTError", "couldnt send :"+params[1]+" errmsg: "+e.getMessage());
             }
         }//GET
@@ -60,6 +66,8 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
                 else return response;
             } catch (Exception e){
                 Log.d("XRESTError", "couldnt get :"+urlstring);
+                //if(this.fun!=null)
+                //    this.fun.accept(null);
             }
         }
         return null;
