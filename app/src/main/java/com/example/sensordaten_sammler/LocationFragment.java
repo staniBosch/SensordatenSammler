@@ -980,8 +980,6 @@ public class LocationFragment extends Fragment implements LocationListener, View
                 fileNameNoPowComplete = etRouteLabel.getText().toString() + fileNameNoPow + ".csv";
                 fileNameComplete = fileNameNoPowComplete;
                 break;
-            default:
-                callback = mLocationCallbackBalanced;
         }
         if(priority == -1){
             Toast.makeText(getActivity(), "Fehler beim erkennen der LocationRequest Priority!", Toast.LENGTH_SHORT).show();
