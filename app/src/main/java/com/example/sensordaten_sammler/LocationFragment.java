@@ -94,6 +94,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
     GoogleApiClient mGoogleApiClient;
     public Location lastLocationGPS;
     float distThresholdInM, maxSpeed;
+    Long lastTimeStamp;
     List<Double> accAbsolutesList;
     public boolean requestingLocationUpdates;
     Spinner spinnerRoute;
@@ -235,8 +236,12 @@ public class LocationFragment extends Fragment implements LocationListener, View
                     Toast.makeText(getActivity(), "Positionsfix an Server gesendet!", Toast.LENGTH_SHORT).show();
                 }
                 // Distanzschwellwert und Maximalgeschwindigkeit angegeben:
-                else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
+                else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")
+                && (lastLocationGPS == null || (lastTimeStamp-System.currentTimeMillis()) > (distThresholdInM/maxSpeed)*1000) &&
+                        (lastLocationGPS == null || lastLocationGPS.distanceTo(newestLocation) > distThresholdInM )){
                     sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
+                    this.lastLocationGPS = newestLocation;
+                    this.lastTimeStamp = System.currentTimeMillis();
                     Toast.makeText(getActivity(), "LocationUpdate empfangen!", Toast.LENGTH_SHORT).show();
                 } else if(!timeIntervMs.getText().toString().equalsIgnoreCase("") && !posChangeInM.getText().toString().equalsIgnoreCase("")){
                     sendGPSDataRest(latitudeGPS, longitudeGPS, altitudeGPS, speedGPS, accuracyGPS);
@@ -496,7 +501,7 @@ public class LocationFragment extends Fragment implements LocationListener, View
                                 else if(!etDistThreshold.getText().toString().equalsIgnoreCase("") && !etMaxSpeed.getText().toString().equalsIgnoreCase("")){
 //                                    long calcTimeInterv;
 //                                    float calcMinDist;
-                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, (long) (distThresholdInM / maxSpeed) * 1000, distThresholdInM, this);
+                                    MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                                 }
                                 else{
                                     MainActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeInterv, posDiff, this);
