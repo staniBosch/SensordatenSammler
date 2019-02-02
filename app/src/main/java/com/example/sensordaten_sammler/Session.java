@@ -30,7 +30,7 @@ public class Session {
                 JSONObject js;
                 try {
                     //POST SESSION
-                    String urlstring = "http://sbcon.ddns.net:3000/api/session";
+                    String urlstring = "http://sbcon.ddns.net:3000/api/lokalapp/session";
                     JSONObject data = new JSONObject();
                     data.put("value", android.os.Build.MODEL);
                     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -102,7 +102,7 @@ public class Session {
         JSONObject js;
         try {
             //POST SESSION
-            String urlstring = "http://sbcon.ddns.net:3000/api/session";
+            String urlstring = "http://sbcon.ddns.net:3000/api/lokalapp/session";
             JSONObject data = new JSONObject();
             data.put("value", android.os.Build.MODEL);
             MediaType JSON = MediaType.parse("application/json; charset=utf-8");

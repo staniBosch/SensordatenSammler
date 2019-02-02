@@ -108,7 +108,7 @@ public class Data2ServerHelper extends BroadcastReceiver {
                         }
                     }
                     else{
-                        String urlstring = "http://sbcon.ddns.net:3000/api/session";
+                        String urlstring = "http://sbcon.ddns.net:3000/api/lokalapp/session";
                         JSONObject data = new JSONObject();
                         data.put("value", "unknown");
                         MediaType JSON = MediaType.parse("application/json; charset=utf-8");

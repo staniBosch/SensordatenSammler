@@ -30,7 +30,7 @@ public class ConnectionRest extends AsyncTask<String, Void, Object> {
         if(params[0].contains("sbcon"))
             urlstring = params[0];
         else
-            urlstring = "http://sbcon.ddns.net:3000/api/"+params[0];
+            urlstring = "http://sbcon.ddns.net:3000/api/lokalapp/"+params[0];
         OkHttpClient client = new OkHttpClient();
         Request request;
         //POST
